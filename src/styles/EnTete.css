@@ -1,0 +1,67 @@
+/* =============================================
+   EN-TÊTE — Pyrène Automation
+   ============================================= */
+
+.entete {
+  background-color: var(--vert-principal);
+  padding: 12px 32px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+.entete__logo-wrapper {
+  border: 2px solid #3a7a9c;
+  border-radius: 6px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.entete__logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+}
+
+.entete__titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--blanc);
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Pied de page */
+.pied-de-page {
+  background-color: var(--vert-principal);
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: auto;
+}
+
+.pied-de-page__logo-wrapper {
+  border: 2px solid #3a7a9c;
+  border-radius: 6px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pied-de-page__logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+}
+
+.pied-de-page__titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--blanc);
+}

@@ -1,0 +1,119 @@
+/* =============================================
+   TABLEAU DE BORD — Pyrène Automation
+   ============================================= */
+
+.tableau {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+}
+
+.tableau__carte {
+  background-color: var(--vert-carte);
+  border-radius: var(--rayon);
+  padding: 40px 44px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--ombre);
+  text-align: center;
+  animation: apparition 0.4s ease;
+}
+
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tableau__icone {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.tableau__titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--texte-sombre);
+  margin-bottom: 6px;
+}
+
+.tableau__sous-titre {
+  font-size: 1rem;
+  color: var(--texte-sombre);
+  margin-bottom: 4px;
+}
+
+.tableau__email {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 24px;
+  font-style: italic;
+}
+
+.tableau__infos {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.tableau__info-item {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tableau__info-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.tableau__info-valeur {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.tableau__info-valeur--admin {
+  color: #7b1fa2;
+}
+.tableau__info-valeur--user {
+  color: #1565c0;
+}
+.tableau__info-valeur--actif {
+  color: #1b5e20;
+}
+
+.tableau__bouton-deconnexion {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--blanc);
+  color: var(--texte-sombre);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: "Nunito", sans-serif;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.tableau__bouton-deconnexion:hover {
+  background-color: #ffebee;
+  color: #c62828;
+  transform: translateY(-1px);
+}

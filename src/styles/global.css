@@ -1,0 +1,55 @@
+/* =============================================
+   STYLES GLOBAUX — Pyrène Automation
+   ============================================= */
+
+:root {
+  --vert-principal: #6abf4b;
+  --vert-fonce: #4e9a34;
+  --vert-clair: #8fd470;
+  --vert-carte: #5cb83a;
+  --blanc: #ffffff;
+  --gris-clair: #f4f4f4;
+  --texte-sombre: #1a1a1a;
+  --texte-moyen: #444444;
+  --rouge-erreur: #e53935;
+  --vert-succes: #2e7d32;
+  --ombre: 0 8px 32px rgba(0, 0, 0, 0.15);
+  --ombre-legere: 0 2px 12px rgba(0, 0, 0, 0.08);
+  --rayon: 18px;
+  --transition: all 0.25s ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: "Nunito", sans-serif;
+  background-color: var(--blanc);
+  color: var(--texte-sombre);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  cursor: pointer;
+  font-family: "Nunito", sans-serif;
+}
+
+input {
+  font-family: "Nunito", sans-serif;
+}
+
+a {
+  text-decoration: none;
+}

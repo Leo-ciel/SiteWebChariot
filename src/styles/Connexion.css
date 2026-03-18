@@ -1,0 +1,202 @@
+/* =============================================
+   PAGE CONNEXION — Pyrène Automation
+   ============================================= */
+
+.connexion {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  background-color: var(--blanc);
+}
+
+/* ─── Carte principale ─────────────────────── */
+.connexion__carte {
+  background-color: var(--vert-carte);
+  border-radius: var(--rayon);
+  padding: 32px 40px 36px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: var(--ombre);
+  animation: apparition 0.4s ease;
+}
+
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Titre ────────────────────────────────── */
+.connexion__titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--texte-sombre);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* ─── Onglets Administrateur / Utilisateur ── */
+.connexion__onglets {
+  display: flex;
+  gap: 0;
+  margin-bottom: 24px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.connexion__onglet {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  background-color: rgba(255, 255, 255, 0.3);
+  color: var(--texte-sombre);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: "Nunito", sans-serif;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.connexion__onglet:first-child {
+  border-right: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.connexion__onglet--actif {
+  background-color: var(--blanc);
+  color: var(--texte-sombre);
+}
+
+.connexion__onglet:hover:not(.connexion__onglet--actif) {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* ─── Formulaire ───────────────────────────── */
+.connexion__formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.connexion__groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 14px;
+}
+
+.connexion__label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--texte-sombre);
+}
+
+.connexion__champ {
+  padding: 9px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background-color: var(--blanc);
+  color: var(--texte-sombre);
+  outline: none;
+  transition: var(--transition);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.connexion__champ:focus {
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.08),
+    0 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+/* ─── Message d'erreur ─────────────────────── */
+.connexion__erreur {
+  background-color: rgba(229, 57, 53, 0.12);
+  border: 1px solid rgba(229, 57, 53, 0.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: #b71c1c;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 12px;
+  animation: secousse 0.35s ease;
+}
+
+@keyframes secousse {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+/* ─── Bouton Se connecter ──────────────────── */
+.connexion__bouton {
+  width: 100%;
+  padding: 11px;
+  margin-top: 6px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--blanc);
+  color: var(--texte-sombre);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: "Nunito", sans-serif;
+  transition: var(--transition);
+  box-shadow: var(--ombre-legere);
+}
+
+.connexion__bouton:hover {
+  background-color: var(--gris-clair);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+.connexion__bouton:active {
+  transform: translateY(0);
+}
+
+/* ─── Lien inscription ─────────────────────── */
+.connexion__lien-inscription {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 0.88rem;
+  color: var(--texte-sombre);
+}
+
+.connexion__lien-inscription a {
+  color: #1565c0;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.connexion__lien-inscription a:hover {
+  color: #0d47a1;
+}
+
+/* ─── Badge mode (admin/utilisateur) ──────── */
+.connexion__badge-mode {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
