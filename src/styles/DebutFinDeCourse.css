@@ -1,0 +1,75 @@
+/* =============================================
+   SECTION DÉBUT ET FIN DE COURSE
+   ============================================= */
+
+/* ─── Barre de progression ─────────────────── */
+.dfc__barre-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dfc__barre-fond {
+  width: 100%;
+  height: 28px;
+  background-color: #e0e0e0;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.dfc__barre-progression {
+  height: 100%;
+  background: linear-gradient(90deg, var(--vert-principal), var(--vert-fonce));
+  border-radius: 14px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 10px;
+}
+
+.dfc__barre-pourcent {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--blanc);
+}
+
+.dfc__barre-etiquettes {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #888;
+  font-weight: 600;
+}
+
+/* ─── Piste avec chariot animé ──────────────── */
+.dfc__piste {
+  position: relative;
+  height: 50px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.dfc__rail {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: #bbb;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+.dfc__chariot {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.4rem;
+  transition: left 0.5s ease;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+}

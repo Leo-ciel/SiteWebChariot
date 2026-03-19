@@ -1,20 +1,29 @@
 // =============================================
 // APP.JSX — Orchestrateur principal
-// Navigation : connexion | inscription | tableau-de-bord
+// Navigation : connexion | inscription | accueil | commande-chariot
 // =============================================
 
 import { useState } from "react";
+import Accueil from "./Components/Accueil";
+import CommandeChariot from "./Components/CommandeChariot";
 import Connexion from "./Components/Connexion";
 import { EnTete, PiedDePage } from "./Components/EnTete";
 import Inscription from "./Components/Inscription";
-import TableauDeBord from "./Components/TableauDebord";
+import MesuresTempsReel from "./Components/MesuresTempsReel";
+
+// ─── Titres affichés dans l'en-tête selon la page ─
+const TITRES_PAGES = {
+  connexion: "Pyrène Automation",
+  accueil: "Accueil",
+  "commande-chariot": "Commande Chariot",
+  "mesures-temps-reel": "Mesures en temps réel",
+};
 
 const App = () => {
   // ─── État global de navigation ───────────────
   const [pageCourante, setPageCourante] = useState("connexion");
 
   // ─── Liste des comptes utilisateurs inscrits ─
-  // (stocké en mémoire — en production, utiliser une API/BDD)
   const [comptes, setComptes] = useState([]);
 
   // ─── Utilisateur connecté ────────────────────
@@ -22,7 +31,7 @@ const App = () => {
 
   // ─── Gestionnaire de navigation ──────────────
   const changerPage = (page, donnees = null) => {
-    if (page === "tableau-de-bord" && donnees) {
+    if (page === "accueil" && donnees) {
       setUtilisateurConnecte(donnees);
     }
     setPageCourante(page);
@@ -31,12 +40,6 @@ const App = () => {
   // ─── Ajout d'un nouveau compte ───────────────
   const ajouterCompte = (nouveauCompte) => {
     setComptes((prev) => [...prev, nouveauCompte]);
-  };
-
-  // ─── Déconnexion ─────────────────────────────
-  const seDeconnecter = () => {
-    setUtilisateurConnecte(null);
-    setPageCourante("connexion");
   };
 
   // ─── Choix du composant de page ──────────────
@@ -52,27 +55,32 @@ const App = () => {
             surChangementPage={changerPage}
           />
         );
-      case "tableau-de-bord":
+      case "accueil":
         return (
-          <TableauDeBord
+          <Accueil
             utilisateur={utilisateurConnecte}
-            surDeconnexion={seDeconnecter}
+            surChangementPage={changerPage}
           />
         );
+      case "commande-chariot":
+        return <CommandeChariot surChangementPage={changerPage} />;
+      case "mesures-temps-reel":
+        return <MesuresTempsReel surChangementPage={changerPage} />;
       default:
         return <Connexion comptes={comptes} surChangementPage={changerPage} />;
     }
   };
 
+  // ─── Titre dynamique de l'en-tête ────────────
+  const titreEntete = TITRES_PAGES[pageCourante] || "Pyrène Automation";
+
   // ─── Affichage conditionnel de l'en-tête ─────
-  // Page connexion → en-tête en HAUT
   // Page inscription → en-tête en BAS (comme la maquette)
-  const enteteEnHaut = pageCourante !== "inscription";
   const enteteEnBas = pageCourante === "inscription";
 
   return (
     <>
-      {enteteEnHaut && <EnTete />}
+      {!enteteEnBas && <EnTete titre={titreEntete} />}
       {rendrePage()}
       {enteteEnBas ? <EnTete /> : <PiedDePage />}
     </>

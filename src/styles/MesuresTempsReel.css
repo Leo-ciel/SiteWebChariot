@@ -1,0 +1,268 @@
+/* =============================================
+   LAYOUT MESURES EN TEMPS RÉEL — Pyrène Automation
+   Contient uniquement : sidebar, zone contenu,
+   et les classes partagées entre toutes les sections
+   ============================================= */
+
+/* ─── Mise en page générale ────────────────── */
+.mesures {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* ─── Barre latérale gauche ────────────────── */
+.mesures__sidebar {
+  width: 200px;
+  min-width: 200px;
+  background-color: var(--vert-principal);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.mesures__sidebar-titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--blanc);
+  padding: 20px 16px 12px;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+.mesures__sidebar-liste {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  gap: 14px;
+}
+
+.mesures__sidebar-bouton {
+  background-color: var(--blanc);
+  border: none;
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--texte-sombre);
+  cursor: pointer;
+  text-align: left;
+  transition: var(--transition);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.mesures__sidebar-bouton:hover {
+  background-color: var(--gris-clair);
+  transform: translateX(3px);
+}
+
+.mesures__sidebar-bouton--actif {
+  background-color: var(--texte-sombre);
+  color: var(--blanc);
+}
+
+.mesures__sidebar-bouton--actif:hover {
+  background-color: #333;
+  transform: translateX(3px);
+}
+
+.mesures__sidebar-retour {
+  margin: auto 12px 16px;
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  padding: 9px 14px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--blanc);
+  cursor: pointer;
+  transition: var(--transition);
+  text-align: center;
+}
+
+.mesures__sidebar-retour:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* ─── Zone de contenu principale ──────────── */
+.mesures__contenu {
+  flex: 1;
+  background-color: #e8e8e8;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.mesures__section-titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--texte-sombre);
+  padding: 24px 28px 20px;
+  border-bottom: 2px solid #ccc;
+}
+
+.mesures__section-corps {
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ─── Classes partagées entre toutes les sections ─ */
+
+.mesures__indicateurs {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.mesures__indicateur {
+  background-color: var(--blanc);
+  border-radius: 8px;
+  padding: 14px 18px;
+  min-width: 120px;
+  flex: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mesures__indicateur-label {
+  font-family: "Nunito", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+}
+
+.mesures__indicateur-valeur {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--texte-sombre);
+}
+
+.mesures__indicateur-valeur--vert {
+  color: var(--vert-fonce);
+}
+.mesures__indicateur-valeur--orange {
+  color: #e65100;
+}
+.mesures__indicateur-valeur--rouge {
+  color: #c62828;
+}
+.mesures__indicateur-valeur--bleu {
+  color: #1565c0;
+}
+
+.mesures__panneau {
+  background-color: var(--blanc);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.mesures__panneau-titre {
+  font-family: "Nunito", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  padding: 12px 18px 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.mesures__panneau-corps {
+  padding: 20px 18px;
+  min-height: 100px;
+}
+
+.mesures__historique-tableau {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.88rem;
+}
+
+.mesures__historique-tableau th {
+  text-align: left;
+  padding: 8px 12px;
+  background: #f5f5f5;
+  font-weight: 700;
+  color: #666;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-bottom: 2px solid #eee;
+}
+
+.mesures__historique-tableau td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  color: var(--texte-sombre);
+}
+
+.mesures__historique-tableau tr:last-child td {
+  border-bottom: none;
+}
+.mesures__historique-tableau tr:hover td {
+  background: #fafafa;
+}
+
+.mesures__badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.mesures__badge--ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.mesures__badge--alerte {
+  background: #fff3e0;
+  color: #e65100;
+}
+.mesures__badge--erreur {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.mesures__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #aaa;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  font-style: italic;
+}
+
+@keyframes clignoter {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.mesures__live-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  background-color: var(--vert-principal);
+  border-radius: 50%;
+  margin-right: 6px;
+  animation: clignoter 1.2s infinite;
+}

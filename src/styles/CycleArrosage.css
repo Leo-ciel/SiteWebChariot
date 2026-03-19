@@ -1,0 +1,414 @@
+/* =============================================
+   SECTION CYCLE D'ARROSAGE
+   ============================================= */
+
+/* ─── Ligne des boutons Mode + Électrovanne ── */
+.arrosage__actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.arrosage__btn-mode {
+  flex: 1;
+  min-width: 180px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 10px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.arrosage__btn-mode-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.7;
+}
+
+.arrosage__btn-mode-valeur {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Mode Auto */
+.arrosage__btn-mode--auto {
+  background-color: #1565c0;
+  color: var(--blanc);
+}
+.arrosage__btn-mode--auto:hover {
+  background-color: #0d47a1;
+  transform: translateY(-2px);
+}
+
+/* Mode Manuel */
+.arrosage__btn-mode--manuel {
+  background-color: #e0e0e0;
+  color: var(--texte-sombre);
+}
+.arrosage__btn-mode--manuel:hover {
+  background-color: #bdbdbd;
+  transform: translateY(-2px);
+}
+
+/* Bouton électrovanne */
+.arrosage__btn-electrovanne {
+  flex: 1;
+  min-width: 180px;
+  padding: 16px 20px;
+  border: none;
+  border-radius: 10px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.arrosage__btn-electrovanne--ouverte {
+  background-color: var(--vert-carte);
+  color: var(--blanc);
+}
+.arrosage__btn-electrovanne--ouverte:hover {
+  background-color: var(--vert-fonce);
+  transform: translateY(-2px);
+}
+
+.arrosage__btn-electrovanne--fermee {
+  background-color: #e53935;
+  color: var(--blanc);
+}
+.arrosage__btn-electrovanne--fermee:hover {
+  background-color: #b71c1c;
+  transform: translateY(-2px);
+}
+
+.arrosage__btn-electrovanne-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+
+.arrosage__btn-electrovanne-valeur {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ─── Grille 2 colonnes (panneaux bas) ──────── */
+.arrosage__grille {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* ─── Schéma électrovanne SVG ───────────────── */
+.arrosage__schema-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.arrosage__schema-svg {
+  width: 100%;
+  max-width: 280px;
+}
+
+.arrosage__schema-statut {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 20px;
+}
+
+.arrosage__schema-statut--ouvert {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.arrosage__schema-statut--ferme {
+  background: #ffebee;
+  color: #c62828;
+}
+
+/* ─── Liste des cycles d'arrosage ───────────── */
+.arrosage__cycles-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.arrosage__cycle-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #f8f8f8;
+  border-radius: 8px;
+  border-left: 4px solid var(--vert-principal);
+  font-family: "Nunito", sans-serif;
+  font-size: 0.85rem;
+}
+
+.arrosage__cycle-item--en-cours {
+  background: #e8f5e9;
+  border-left-color: var(--vert-fonce);
+  animation: pulser 1.5s ease infinite;
+}
+
+@keyframes pulser {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(76, 175, 80, 0);
+  }
+}
+
+.arrosage__cycle-numero {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #888;
+  min-width: 28px;
+}
+
+.arrosage__cycle-infos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.arrosage__cycle-titre {
+  font-weight: 700;
+  color: var(--texte-sombre);
+  font-size: 0.85rem;
+}
+
+.arrosage__cycle-detail {
+  font-size: 0.75rem;
+  color: #888;
+}
+
+.arrosage__cycle-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.arrosage__cycle-badge--ok {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+.arrosage__cycle-badge--cours {
+  background: #e3f2fd;
+  color: #1565c0;
+}
+.arrosage__cycle-badge--arrete {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+/* ─── Formulaire Nouveau Cycle ──────────────── */
+.arrosage__nouveau {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.arrosage__nouveau-ligne {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.arrosage__nouveau-groupe {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.arrosage__nouveau-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #888;
+}
+
+.arrosage__nouveau-input {
+  padding: 8px 10px;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--texte-sombre);
+  background: var(--blanc);
+  outline: none;
+  transition: var(--transition);
+}
+
+.arrosage__nouveau-input:focus {
+  border-color: var(--vert-principal);
+  box-shadow: 0 0 0 3px rgba(106, 191, 75, 0.2);
+}
+
+.arrosage__nouveau-select {
+  padding: 8px 10px;
+  border: 1.5px solid #ddd;
+  border-radius: 7px;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--texte-sombre);
+  background: var(--blanc);
+  outline: none;
+  cursor: pointer;
+  transition: var(--transition);
+  width: 100%;
+}
+
+.arrosage__nouveau-select:focus {
+  border-color: var(--vert-principal);
+}
+
+.arrosage__nouveau-btn {
+  width: 100%;
+  padding: 11px;
+  border: none;
+  border-radius: 8px;
+  background-color: var(--vert-carte);
+  color: var(--blanc);
+  font-family: "Nunito", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.arrosage__nouveau-btn:hover {
+  background-color: var(--vert-fonce);
+  transform: translateY(-1px);
+}
+
+.arrosage__nouveau-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ─── Barre de progression position ────────── */
+.arrosage__barre-fond {
+  width: 100%;
+  height: 22px;
+  background-color: #e0e0e0;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+.arrosage__barre-progression {
+  height: 100%;
+  background: linear-gradient(90deg, #42a5f5, #1565c0);
+  border-radius: 11px;
+  transition: width 0.5s ease;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 8px;
+}
+
+.arrosage__barre-pourcent {
+  font-family: "Poppins", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--blanc);
+}
+
+.arrosage__barre-etiquettes {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: #888;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+/* ─── Piste chariot ─────────────────────────── */
+.arrosage__piste {
+  position: relative;
+  height: 44px;
+  background: #f0f0f0;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.arrosage__rail {
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  background: #bbb;
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+.arrosage__chariot {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.3rem;
+  transition: left 0.5s ease;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+}
+
+/* Gouttes d'eau animées */
+.arrosage__gouttes {
+  position: absolute;
+  top: 4px;
+  display: flex;
+  gap: 3px;
+  font-size: 0.7rem;
+  transition: left 0.5s ease;
+  animation: tomber 0.8s ease infinite;
+}
+
+@keyframes tomber {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}

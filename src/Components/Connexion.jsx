@@ -36,7 +36,7 @@ const Connexion = ({ comptes, surChangementPage }) => {
         email === COMPTE_ADMIN.email &&
         motDePasse === COMPTE_ADMIN.motDePasse
       ) {
-        surChangementPage("tableau-de-bord", { mode: "administrateur", email });
+        surChangementPage("accueil", { mode: "administrateur", email });
       } else {
         setErreur(
           "Identifiants administrateur incorrects. Vérifiez vos informations.",
@@ -49,7 +49,7 @@ const Connexion = ({ comptes, surChangementPage }) => {
       );
 
       if (compteExistant) {
-        surChangementPage("tableau-de-bord", { mode: "utilisateur", email });
+        surChangementPage("accueil", { mode: "utilisateur", email });
       } else {
         // Vérifier si l'email existe mais mot de passe incorrect
         const emailExistant = comptes.find((c) => c.email === email);
