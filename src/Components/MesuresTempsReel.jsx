@@ -1,16 +1,12 @@
 // =============================================
 // COMPOSANT : Mesures en Temps Réel
-// ─── Rôle : orchestrateur + layout sidebar ───
-//
-// Sections (composants séparés) :
-//   DebutFinDeCourse.jsx  ← implémenté
-//   RoueCodeuse.jsx       ← implémenté
-//   CycleArrosage.jsx     ← implémenté
-//   (Alerte.jsx           ← à venir)
+// Rôle : orchestrateur + layout sidebar
+// Sections : DebutFinDeCourse · RoueCodeuse · CycleArrosage · Alerte
 // =============================================
 
 import { useState } from "react";
 import "../styles/MesuresTempsReel.css";
+import Alerte from "./Alerte";
 import CycleArrosage from "./CycleArrosage";
 import DebutFinDeCourse from "./DebutFinDeCourse";
 import RoueCodeuse from "./RoueCodeuse";
@@ -33,19 +29,47 @@ const TITRES = {
 const MesuresTempsReel = ({ surChangementPage }) => {
   const [sectionActive, setSectionActive] = useState("debut-fin");
 
+  // ─── Données partagées : remontées depuis chaque capteur ──
+  const [donneesCapteurs, setDonneesCapteurs] = useState({
+    debutFinCourse: { position: 0, vitesse: 0 },
+    roueCodueuse: { rpm: 0 },
+    cycleArrosage: { electrovanne: "fermee" },
+  });
+
+  const majDonneesCapteur = (idCapteur, nouvelles) => {
+    setDonneesCapteurs((prev) => ({
+      ...prev,
+      [idCapteur]: { ...prev[idCapteur], ...nouvelles },
+    }));
+  };
+
   // ─── Rendu de la section active ──────────────
   const rendreSection = () => {
     switch (sectionActive) {
       case "debut-fin":
-        return <DebutFinDeCourse />;
+        return (
+          <DebutFinDeCourse
+            onDonnees={(d) => majDonneesCapteur("debutFinCourse", d)}
+          />
+        );
       case "roue-codeuse":
-        return <RoueCodeuse />;
+        return (
+          <RoueCodeuse
+            onDonnees={(d) => majDonneesCapteur("roueCodueuse", d)}
+          />
+        );
       case "cycle-arrosage":
-        return <CycleArrosage />;
+        return (
+          <CycleArrosage
+            onDonnees={(d) => majDonneesCapteur("cycleArrosage", d)}
+          />
+        );
+      case "alerte":
+        return <Alerte donneesCapteurs={donneesCapteurs} />;
       default:
         return (
           <div className="mesures__placeholder">
-            🚧 Section « {TITRES[sectionActive]} » — à venir
+            Section {TITRES[sectionActive]} — à venir
           </div>
         );
     }

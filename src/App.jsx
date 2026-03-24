@@ -1,6 +1,5 @@
 // =============================================
-// APP.JSX — Orchestrateur principal
-// Navigation : connexion | inscription | accueil | commande-chariot
+// COMPOSANT : Orchestrateur principal
 // =============================================
 
 import { useState } from "react";
@@ -10,6 +9,7 @@ import Connexion from "./Components/Connexion";
 import { EnTete, PiedDePage } from "./Components/EnTete";
 import Inscription from "./Components/Inscription";
 import MesuresTempsReel from "./Components/MesuresTempsReel";
+// Alerte est géré dans MesuresTempsReel — plus besoin de l'importer ici
 
 // ─── Titres affichés dans l'en-tête selon la page ─
 const TITRES_PAGES = {
@@ -71,11 +71,7 @@ const App = () => {
     }
   };
 
-  // ─── Titre dynamique de l'en-tête ────────────
   const titreEntete = TITRES_PAGES[pageCourante] || "Pyrène Automation";
-
-  // ─── Affichage conditionnel de l'en-tête ─────
-  // Page inscription → en-tête en BAS (comme la maquette)
   const enteteEnBas = pageCourante === "inscription";
 
   return (

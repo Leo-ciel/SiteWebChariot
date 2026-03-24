@@ -11,7 +11,6 @@ import { useEffect, useRef, useState } from "react";
 import "../styles/DebutFinDeCourse.css";
 import TableauHistorique from "./TableauHistorique";
 
-// Et ajoute cette fonction juste en dessous des imports :
 const heureActuelle = () => new Date().toLocaleTimeString("fr-FR");
 
 // ─── Historique initial simulé ───────────────
@@ -48,10 +47,10 @@ const HISTORIQUE_INITIAL = [
   },
 ];
 
-const DebutFinDeCourse = () => {
+const DebutFinDeCourse = ({ onDonnees }) => {
   // ─── États ───────────────────────────────────
-  const [position, setPosition] = useState(34); // position en %
-  const [vitesse, setVitesse] = useState(1.8); // m/s
+  const [position, setPosition] = useState(34);
+  const [vitesse, setVitesse] = useState(1.8);
   const debut = "0 m";
   const fin = "100 m";
   const [historique, setHistorique] = useState(HISTORIQUE_INITIAL);
@@ -64,19 +63,25 @@ const DebutFinDeCourse = () => {
         return Math.min(100, Math.max(0, Math.round(nouvelle)));
       });
       setVitesse((prev) => {
-        const nouvelle = prev + (Math.random() * 0.4 - 0.2);
-        return Math.min(5, Math.max(0, parseFloat(nouvelle.toFixed(1))));
+        const nouvelle = Math.min(
+          5,
+          Math.max(
+            0,
+            parseFloat((prev + (Math.random() * 0.4 - 0.2)).toFixed(1)),
+          ),
+        );
+        onDonnees?.({ position, vitesse: nouvelle });
+        return nouvelle;
       });
     }, 2000);
 
     return () => clearInterval(intervalle);
   }, []);
 
-  // ─── Gestion des événements aux bornes ─────────────────
+  // ─── Gestion des événements aux bornes ───────
   const dernierEvenement = useRef(null);
 
   useEffect(() => {
-    // Position >= 98 : fin de course
     if (position >= 98 && dernierEvenement.current !== "fin") {
       dernierEvenement.current = "fin";
       setTimeout(() => {
@@ -90,9 +95,7 @@ const DebutFinDeCourse = () => {
           ...prev.slice(0, 9),
         ]);
       }, 0);
-    }
-    // Position <= 2 : début de course
-    else if (position <= 2 && dernierEvenement.current !== "debut") {
+    } else if (position <= 2 && dernierEvenement.current !== "debut") {
       dernierEvenement.current = "debut";
       setTimeout(() => {
         setHistorique((prev) => [
@@ -105,9 +108,7 @@ const DebutFinDeCourse = () => {
           ...prev.slice(0, 9),
         ]);
       }, 0);
-    }
-    // Zone neutre : réinitialiser
-    else if (position > 2 && position < 98) {
+    } else if (position > 2 && position < 98) {
       dernierEvenement.current = null;
     }
   }, [position]);
@@ -163,7 +164,7 @@ const DebutFinDeCourse = () => {
                 style={{ width: `${position}%` }}
               >
                 {position > 12 && (
-                  <span className="dfc__barre-pourcent">{position}%</span>
+                  <span className="dfc__barre-pourcent">{position}</span>
                 )}
               </div>
             </div>
@@ -180,9 +181,7 @@ const DebutFinDeCourse = () => {
                 className="dfc__chariot"
                 style={{ left: positionChariot }}
                 title={`Position : ${positionMetres}`}
-              >
-                🚜
-              </div>
+              />
             </div>
           </div>
         </div>

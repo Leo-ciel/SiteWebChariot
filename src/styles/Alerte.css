@@ -1,0 +1,214 @@
+/* Alerte.css — Styles du dashboard Alerte */
+
+.alerte__grille {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.alerte__toggle-ligne {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+.alerte__toggle-ligne:last-child {
+  border-bottom: none;
+}
+
+.alerte__toggle-label {
+  font-size: 13px;
+  color: #333;
+}
+
+.alerte__toggle {
+  width: 44px;
+  height: 22px;
+  border-radius: 11px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background-color 0.25s;
+}
+.alerte__toggle--actif {
+  background-color: #6bbf4e;
+}
+.alerte__toggle--inactif {
+  background-color: #cccccc;
+}
+
+.alerte__toggle-rond {
+  position: absolute;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  background-color: white;
+  border-radius: 50%;
+  transition: left 0.25s;
+}
+.alerte__toggle--actif .alerte__toggle-rond {
+  left: 24px;
+}
+.alerte__toggle--inactif .alerte__toggle-rond {
+  left: 4px;
+}
+
+.alerte__label {
+  display: block;
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 4px;
+  margin-top: 10px;
+}
+.alerte__label--petit {
+  font-size: 11px;
+  color: #777;
+}
+
+.alerte__input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 13px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.alerte__input:focus {
+  outline: none;
+  border-color: #6bbf4e;
+  box-shadow: 0 0 0 2px rgba(107, 191, 78, 0.2);
+}
+.alerte__input--petit {
+  font-size: 12px;
+  padding: 5px 8px;
+}
+.alerte__email-capteur {
+  margin-top: 8px;
+}
+
+.alerte__bouton-envoyer {
+  margin-top: 14px;
+  width: 100%;
+  padding: 9px;
+  background-color: #6bbf4e;
+  color: white;
+  font-size: 13px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    opacity 0.2s;
+}
+.alerte__bouton-envoyer:hover:not(.alerte__bouton-envoyer--cours) {
+  background-color: #5aad3f;
+}
+.alerte__bouton-envoyer--cours {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alerte__badge {
+  border-radius: 12px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+}
+.alerte__badge--rouge {
+  background-color: #e53935;
+  color: white;
+}
+.alerte__badge--orange {
+  background-color: #ff9800;
+  color: white;
+  font-size: 11px;
+}
+
+.alerte__nominal {
+  font-size: 13px;
+  color: #6bbf4e;
+  text-align: center;
+  padding: 24px 0;
+  font-weight: 600;
+}
+
+.alerte__ligne-alerte {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 5px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  background-color: #fff8e1;
+}
+.alerte__ligne-message {
+  margin: 3px 0 0 0;
+  font-size: 12px;
+  color: #e65100;
+}
+
+.alerte__historique-corps {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.alerte__ligne-historique {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 7px 9px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+  font-size: 12px;
+}
+.alerte__ligne-historique--succes {
+  background-color: #e8f5e9;
+}
+.alerte__ligne-historique--erreur {
+  background-color: #ffebee;
+}
+
+.alerte__historique-capteur {
+  font-size: 12px;
+  color: #1a1a1a;
+}
+.alerte__historique-msg {
+  margin: 2px 0 0 0;
+  font-size: 11px;
+  color: #555;
+}
+
+.alerte__historique-droite {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  white-space: nowrap;
+}
+.alerte__historique-statut--succes {
+  font-size: 11px;
+  color: #2e7d32;
+  font-weight: bold;
+}
+.alerte__historique-statut--erreur {
+  font-size: 11px;
+  color: #c62828;
+  font-weight: bold;
+}
+.alerte__historique-date {
+  font-size: 10px;
+  color: #999;
+}
+
+@media (max-width: 800px) {
+  .alerte__grille {
+    grid-template-columns: 1fr;
+  }
+}

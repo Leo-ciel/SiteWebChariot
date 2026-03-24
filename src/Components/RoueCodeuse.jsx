@@ -2,11 +2,11 @@
 // COMPOSANT : Roue Codeuse (Encodeur)
 // =============================================
 // Affiche :
-//   - 4 indicateurs (début 0°, fin 360°, position °, vitesse RPM)
+//   - 4 indicateurs (début 0°, fin 360°, position, vitesse RPM)
 //   - Roue SVG animée avec capteur SICK
 //   - Jauges RPM et position angulaire
-//   - Stats (angle cumulé, tours effectués)
-//   - Boutons (changer le sens, remise à zéro)
+//   - Stats angle cumulé, tours effectués
+//   - Boutons changer le sens, remise à zéro
 //   - Tableau historique des événements
 // =============================================
 
@@ -21,7 +21,7 @@ const HISTORIQUE_INITIAL = [
   {
     id: 1,
     heure: "08:10:05",
-    evenement: "Démarrage encodeur — position 0°",
+    evenement: "Démarrage encodeur position 0°",
     statut: "ok",
   },
   {
@@ -39,25 +39,25 @@ const HISTORIQUE_INITIAL = [
   {
     id: 4,
     heure: "10:12:37",
-    evenement: "Vitesse max dépassée — 320 RPM",
+    evenement: "Vitesse max dépassée (320 RPM)",
     statut: "alerte",
   },
   {
     id: 5,
     heure: "11:44:01",
-    evenement: "Réinitialisation position à 0°",
+    evenement: "Réinitialisation position 0°",
     statut: "ok",
   },
 ];
 
-const RoueCodeuse = () => {
+const RoueCodeuse = ({ onDonnees }) => {
   // ─── États ───────────────────────────────────
-  const [angleDegres, setAngleDegres] = useState(0); // angle cumulé en °
-  const [angleAffiche, setAngleAffiche] = useState(0); // modulo 360 pour l'affichage
-  const [rpm, setRpm] = useState(45); // tours par minute
-  const [impulsions, setImpulsions] = useState(1024); // impulsions totales
-  const [sens, setSens] = useState("horaire"); // sens de rotation
-  const [rotationVisuelle, setRotationVisuelle] = useState(0); // rotation SVG cumulée
+  const [angleDegres, setAngleDegres] = useState(0);
+  const [angleAffiche, setAngleAffiche] = useState(0);
+  const [rpm, setRpm] = useState(45);
+  const [impulsions, setImpulsions] = useState(1024);
+  const [sens, setSens] = useState("horaire");
+  const [rotationVisuelle, setRotationVisuelle] = useState(0);
   const [historique, setHistorique] = useState(HISTORIQUE_INITIAL);
 
   // ─── Simulation en temps réel toutes les 300ms ─
@@ -74,8 +74,12 @@ const RoueCodeuse = () => {
       });
       setImpulsions((prev) => prev + Math.floor(Math.random() * 3 + 1));
       setRpm((prev) => {
-        const nouveau = prev + (Math.random() * 6 - 3);
-        return Math.min(300, Math.max(10, parseFloat(nouveau.toFixed(0))));
+        const nouveau = Math.min(
+          300,
+          Math.max(10, parseFloat((prev + (Math.random() * 6 - 3)).toFixed(0))),
+        );
+        onDonnees?.({ rpm: nouveau });
+        return nouveau;
       });
     }, 300);
 
@@ -93,7 +97,7 @@ const RoueCodeuse = () => {
           {
             id: prev.length + 1,
             heure: heureActuelle(),
-            evenement: `Vitesse critique — ${rpm} RPM`,
+            evenement: `Vitesse critique ${rpm} RPM`,
             statut: "alerte",
           },
           ...prev.slice(0, 9),
@@ -112,7 +116,7 @@ const RoueCodeuse = () => {
       {
         id: prev.length + 1,
         heure: heureActuelle(),
-        evenement: `Changement de sens → ${nouveauSens}`,
+        evenement: `Changement de sens : ${nouveauSens}`,
         statut: "ok",
       },
       ...prev.slice(0, 9),
@@ -128,7 +132,7 @@ const RoueCodeuse = () => {
       {
         id: prev.length + 1,
         heure: heureActuelle(),
-        evenement: "Réinitialisation position à 0°",
+        evenement: "Réinitialisation position 0°",
         statut: "ok",
       },
       ...prev.slice(0, 9),
@@ -157,7 +161,7 @@ const RoueCodeuse = () => {
           <span className="mesures__indicateur-valeur">360°</span>
         </div>
         <div className="mesures__indicateur">
-          <span className="mesures__indicateur-label">Position °</span>
+          <span className="mesures__indicateur-label">Position</span>
           <span className="mesures__indicateur-valeur mesures__indicateur-valeur--bleu">
             {angleAffiche}°
           </span>
@@ -170,7 +174,7 @@ const RoueCodeuse = () => {
         </div>
       </div>
 
-      {/* ── Panneau position (roue visuelle + jauges) ── */}
+      {/* ── Panneau roue visuelle + jauges ── */}
       <div className="mesures__panneau">
         <div className="mesures__panneau-titre">
           <span className="mesures__live-dot" />
@@ -213,7 +217,7 @@ const RoueCodeuse = () => {
                         x2={x2}
                         y2={y2}
                         stroke="#555"
-                        strokeWidth={i % 6 === 0 ? "3" : "1.5"}
+                        strokeWidth={i % 6 === 0 ? 3 : 1.5}
                       />
                     );
                   })}
@@ -228,7 +232,7 @@ const RoueCodeuse = () => {
                     strokeWidth="2"
                   />
 
-                  {/* Trait de référence central (comme sur la photo) */}
+                  {/* Trait de référence central */}
                   <line
                     x1="100"
                     y1="55"
@@ -239,7 +243,7 @@ const RoueCodeuse = () => {
                     strokeLinecap="round"
                   />
 
-                  {/* 3 vis cruciformes (comme sur la vraie roue) */}
+                  {/* 3 vis cruciformes */}
                   {[0, 120, 240].map((a) => {
                     const rad = (a * Math.PI) / 180;
                     const bx = 100 + 40 * Math.cos(rad);
@@ -286,7 +290,7 @@ const RoueCodeuse = () => {
                   <circle cx="100" cy="100" r="4" fill="#555" />
                 </g>
 
-                {/* Capteur SICK (fixe — ne tourne pas) */}
+                {/* Capteur SICK fixe */}
                 <rect
                   x="86"
                   y="8"
@@ -309,7 +313,7 @@ const RoueCodeuse = () => {
                   SICK
                 </text>
 
-                {/* Flèche sens de rotation */}
+                {/* Flèche sens */}
                 <text
                   x="100"
                   y="190"
@@ -338,7 +342,7 @@ const RoueCodeuse = () => {
             <div className="roue__jauges">
               {/* Jauge RPM */}
               <div className="roue__jauge">
-                <div className="roue__jauge-titre">Vitesse (RPM)</div>
+                <div className="roue__jauge-titre">Vitesse RPM</div>
                 <div className="roue__jauge-fond">
                   <div
                     className={`roue__jauge-remplissage ${
@@ -400,7 +404,7 @@ const RoueCodeuse = () => {
                   className="roue__btn roue__btn--reset"
                   onClick={remettreAZero}
                 >
-                  ↺ Remise à zéro
+                  Remise à zéro
                 </button>
               </div>
             </div>

@@ -14,7 +14,6 @@ import { useEffect, useState } from "react";
 import "../styles/CycleArrosage.css";
 import TableauHistorique from "./TableauHistorique";
 
-// ─── Utilitaire heure ─────────────────────────
 const heureActuelle = () => new Date().toLocaleTimeString("fr-FR");
 
 // ─── Historique initial ───────────────────────
@@ -73,7 +72,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
     viewBox="0 0 280 160"
     xmlns="http://www.w3.org/2000/svg"
   >
-    {/* Réservoir / corps principal */}
     <rect
       x="80"
       y="30"
@@ -84,8 +82,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
       stroke="#555"
       strokeWidth="2"
     />
-
-    {/* Tuyau entrée gauche */}
     <rect
       x="10"
       y="68"
@@ -97,8 +93,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
       strokeWidth="1.5"
     />
     <circle cx="10" cy="80" r="8" fill="#888" stroke="#555" strokeWidth="1.5" />
-
-    {/* Tuyau sortie droite */}
     <rect
       x="150"
       y="68"
@@ -110,10 +104,7 @@ const SchemaElectrovanne = ({ ouverte }) => (
       strokeWidth="1.5"
       style={{ transition: "fill 0.4s ease" }}
     />
-
-    {/* Vanne (clapet) */}
     {ouverte ? (
-      // Vanne ouverte = passage libre
       <rect
         x="148"
         y="68"
@@ -125,7 +116,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
         strokeWidth="1"
       />
     ) : (
-      // Vanne fermée = clapet bloquant
       <rect
         x="148"
         y="64"
@@ -137,8 +127,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
         strokeWidth="1.5"
       />
     )}
-
-    {/* Bobine électrique (solénoïde) */}
     <rect
       x="95"
       y="8"
@@ -161,8 +149,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
     >
       SOLÉNOÏDE
     </text>
-
-    {/* Tige de commande */}
     <line
       x1="115"
       y1="36"
@@ -172,8 +158,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
       strokeWidth="3"
       style={{ transition: "stroke 0.4s ease" }}
     />
-
-    {/* Écrou de liaison */}
     <circle
       cx="115"
       cy="52"
@@ -183,8 +167,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
       strokeWidth="1.5"
       style={{ transition: "fill 0.4s ease" }}
     />
-
-    {/* Tuyau flexible (gris argenté comme sur la photo) */}
     <path
       d="M 230 80 Q 255 60 260 80 Q 255 100 270 95"
       fill="none"
@@ -192,8 +174,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
       strokeWidth="8"
       strokeLinecap="round"
     />
-
-    {/* Indicateur flux (flèche) */}
     {ouverte && (
       <g>
         <line
@@ -208,8 +188,6 @@ const SchemaElectrovanne = ({ ouverte }) => (
         <polygon points="215,75 225,80 215,85" fill="#4caf50" />
       </g>
     )}
-
-    {/* Label état */}
     <text
       x="115"
       y="145"
@@ -226,12 +204,12 @@ const SchemaElectrovanne = ({ ouverte }) => (
 );
 
 // ─── Composant principal ─────────────────────
-const CycleArrosage = () => {
+const CycleArrosage = ({ onDonnees }) => {
   // ─── États ───────────────────────────────────
   const [modeAuto, setModeAuto] = useState(false);
   const [electrovanneOuverte, setElectrovanneOuverte] = useState(false);
-  const [position, setPosition] = useState(22); // % sur la course
-  const [vitesseMMin, setVitesseMMin] = useState(12.4); // m/min
+  const [position, setPosition] = useState(22);
+  const [vitesseMMin, setVitesseMMin] = useState(12.4);
   const debut = "0 %";
   const fin = "100 %";
   const [cycles, setCycles] = useState(CYCLES_INITIAUX);
@@ -244,8 +222,6 @@ const CycleArrosage = () => {
   const [nvDuree, setNvDuree] = useState(10);
 
   // ─── Simulation position en temps réel ───────
-  // ⚠ terminerCycle() ne doit JAMAIS être appelé à l'intérieur
-  // d'un setState updater (cause page blanche). On le sépare en 2 effets.
   useEffect(() => {
     if (!cycleEnCours) return;
     const intervalle = setInterval(() => {
@@ -261,7 +237,7 @@ const CycleArrosage = () => {
     return () => clearInterval(intervalle);
   }, [cycleEnCours]);
 
-  // ─── Détection fin de course (séparé du setInterval) ─
+  // ─── Détection fin de course ─────────────────
   useEffect(() => {
     if (cycleEnCours && position >= 99.9) {
       terminerCycle();
@@ -288,19 +264,18 @@ const CycleArrosage = () => {
   const basculerElectrovanne = () => {
     const nouvelEtat = !electrovanneOuverte;
     setElectrovanneOuverte(nouvelEtat);
+    onDonnees?.({ electrovanne: nouvelEtat ? "ouverte" : "fermee" });
     ajouterEvenement(`Électrovanne ${nouvelEtat ? "ouverte" : "fermée"}`);
   };
 
   // ─── Lancer un nouveau cycle ──────────────────
   const lancerCycle = () => {
     if (cycleEnCours) return;
-
     const nomVitesse = {
       V1: "V1 — Petite",
       V2: "V2 — Interméd.",
       V3: "V3 — Grande",
     }[nvVitesse];
-
     const nouveauCycle = {
       id: cycles.length + 1,
       heure: heureActuelle(),
@@ -309,10 +284,10 @@ const CycleArrosage = () => {
       duree: `${nvDuree} min`,
       statut: "cours",
     };
-
     setCycles((prev) => [nouveauCycle, ...prev]);
     setCycleEnCours(nouveauCycle.id);
     setElectrovanneOuverte(true);
+    onDonnees?.({ electrovanne: "ouverte" });
     setPosition(0);
     ajouterEvenement(
       `Nouveau cycle lancé — ${nomVitesse}, ${nvPassages} passage(s), ${nvDuree} min`,
@@ -323,6 +298,7 @@ const CycleArrosage = () => {
   const terminerCycle = () => {
     setCycleEnCours(null);
     setElectrovanneOuverte(false);
+    onDonnees?.({ electrovanne: "fermee" });
     setCycles((prev) =>
       prev.map((c) => (c.statut === "cours" ? { ...c, statut: "ok" } : c)),
     );
@@ -333,6 +309,7 @@ const CycleArrosage = () => {
   const arreterCycle = () => {
     setCycleEnCours(null);
     setElectrovanneOuverte(false);
+    onDonnees?.({ electrovanne: "fermee" });
     setCycles((prev) =>
       prev.map((c) => (c.statut === "cours" ? { ...c, statut: "arrete" } : c)),
     );
@@ -344,7 +321,6 @@ const CycleArrosage = () => {
     <>
       {/* ── Ligne 1 : Mode + Électrovanne ── */}
       <div className="arrosage__actions">
-        {/* Bouton Mode Auto / Manuel */}
         <button
           className={`arrosage__btn-mode ${
             modeAuto ? "arrosage__btn-mode--auto" : "arrosage__btn-mode--manuel"
@@ -360,7 +336,6 @@ const CycleArrosage = () => {
           </span>
         </button>
 
-        {/* Bouton Ouvrir / Fermer Électrovanne */}
         <button
           className={`arrosage__btn-electrovanne ${
             electrovanneOuverte
@@ -403,18 +378,15 @@ const CycleArrosage = () => {
         <div className="mesures__indicateur">
           <span className="mesures__indicateur-label">Vitesse m/min</span>
           <span
-            className={`mesures__indicateur-valeur ${
-              cycleEnCours ? "mesures__indicateur-valeur--vert" : ""
-            }`}
+            className={`mesures__indicateur-valeur ${cycleEnCours ? "mesures__indicateur-valeur--vert" : ""}`}
           >
-            {cycleEnCours ? vitesseMMin : "—"} {cycleEnCours ? "m/min" : ""}
+            {cycleEnCours ? `${vitesseMMin} m/min` : "—"}
           </span>
         </div>
       </div>
 
-      {/* ── Ligne 3 : Position sur la course + Cycles d'arrosage ── */}
+      {/* ── Ligne 3 : Position sur la course + Cycles ── */}
       <div className="arrosage__grille">
-        {/* Panneau Position sur la course */}
         <div className="mesures__panneau">
           <div className="mesures__panneau-titre">
             {cycleEnCours && <span className="mesures__live-dot" />}
@@ -422,7 +394,6 @@ const CycleArrosage = () => {
           </div>
           <div className="mesures__panneau-corps">
             <div className="arrosage__schema-wrapper">
-              {/* Schéma électrovanne SVG */}
               <SchemaElectrovanne ouverte={electrovanneOuverte} />
               <span
                 className={`arrosage__schema-statut ${
@@ -435,8 +406,6 @@ const CycleArrosage = () => {
                   ? "✓ Électrovanne ouverte"
                   : "✗ Électrovanne fermée"}
               </span>
-
-              {/* Barre de progression */}
               <div style={{ width: "100%", marginTop: "12px" }}>
                 <div className="arrosage__barre-fond">
                   <div
@@ -454,8 +423,6 @@ const CycleArrosage = () => {
                   <span>0% — Début</span>
                   <span>Fin — 100%</span>
                 </div>
-
-                {/* Piste avec chariot */}
                 <div className="arrosage__piste">
                   <div className="arrosage__rail" />
                   {electrovanneOuverte && (
@@ -478,7 +445,6 @@ const CycleArrosage = () => {
           </div>
         </div>
 
-        {/* Panneau Cycles d'arrosage */}
         <div className="mesures__panneau">
           <div className="mesures__panneau-titre">Cycles d&apos;arrosage</div>
           <div className="mesures__panneau-corps">
@@ -529,12 +495,10 @@ const CycleArrosage = () => {
 
       {/* ── Ligne 4 : Nouveau Cycle + Historique ── */}
       <div className="arrosage__grille">
-        {/* Panneau Nouveau Cycle */}
         <div className="mesures__panneau">
           <div className="mesures__panneau-titre">Nouveau Cycle</div>
           <div className="mesures__panneau-corps">
             {cycleEnCours ? (
-              /* Cycle en cours → affiche bouton STOP */
               <div
                 style={{
                   textAlign: "center",
@@ -570,7 +534,6 @@ const CycleArrosage = () => {
                 </button>
               </div>
             ) : (
-              /* Formulaire de création */
               <div className="arrosage__nouveau">
                 <div className="arrosage__nouveau-ligne">
                   <div className="arrosage__nouveau-groupe">
@@ -586,7 +549,6 @@ const CycleArrosage = () => {
                     </select>
                   </div>
                 </div>
-
                 <div className="arrosage__nouveau-ligne">
                   <div className="arrosage__nouveau-groupe">
                     <label className="arrosage__nouveau-label">Passages</label>
@@ -617,7 +579,6 @@ const CycleArrosage = () => {
                     />
                   </div>
                 </div>
-
                 <button className="arrosage__nouveau-btn" onClick={lancerCycle}>
                   ▶ Lancer le cycle
                 </button>
@@ -626,7 +587,6 @@ const CycleArrosage = () => {
           </div>
         </div>
 
-        {/* Panneau Historique */}
         <TableauHistorique historique={historique} />
       </div>
     </>
