@@ -9,40 +9,38 @@ import Connexion from "./Components/Connexion";
 import { EnTete, PiedDePage } from "./Components/EnTete";
 import Inscription from "./Components/Inscription";
 import MesuresTempsReel from "./Components/MesuresTempsReel";
-// Alerte est géré dans MesuresTempsReel — plus besoin de l'importer ici
+import Systeme from "./Components/Systeme";
 
-// ─── Titres affichés dans l'en-tête selon la page ─
+// ─── Titres dans l'en-tête ─────────────────────
 const TITRES_PAGES = {
   connexion: "Pyrène Automation",
   accueil: "Accueil",
   "commande-chariot": "Commande Chariot",
   "mesures-temps-reel": "Mesures en temps réel",
+  systeme: "Système",
 };
 
 const App = () => {
-  // ─── État global de navigation ───────────────
   const [pageCourante, setPageCourante] = useState("connexion");
-
-  // ─── Liste des comptes utilisateurs inscrits ─
   const [comptes, setComptes] = useState([]);
-
-  // ─── Utilisateur connecté ────────────────────
   const [utilisateurConnecte, setUtilisateurConnecte] = useState(null);
 
-  // ─── Gestionnaire de navigation ──────────────
+  // ─── Navigation ──────────────────────────────
   const changerPage = (page, donnees = null) => {
-    if (page === "accueil" && donnees) {
-      setUtilisateurConnecte(donnees);
-    }
+    if (page === "accueil" && donnees) setUtilisateurConnecte(donnees);
     setPageCourante(page);
   };
 
-  // ─── Ajout d'un nouveau compte ───────────────
-  const ajouterCompte = (nouveauCompte) => {
-    setComptes((prev) => [...prev, nouveauCompte]);
-  };
+  // ─── Gestion des comptes ─────────────────────
+  const ajouterCompte = (nouveau) => setComptes((prev) => [...prev, nouveau]);
+  const supprimerCompte = (email) =>
+    setComptes((prev) => prev.filter((c) => c.email !== email));
+  const modifierCompte = (updated) =>
+    setComptes((prev) =>
+      prev.map((c) => (c.email === updated.email ? updated : c)),
+    );
 
-  // ─── Choix du composant de page ──────────────
+  // ─── Rendu de la page courante ────────────────
   const rendrePage = () => {
     switch (pageCourante) {
       case "connexion":
@@ -66,6 +64,17 @@ const App = () => {
         return <CommandeChariot surChangementPage={changerPage} />;
       case "mesures-temps-reel":
         return <MesuresTempsReel surChangementPage={changerPage} />;
+      case "systeme":
+        return (
+          <Systeme
+            surChangementPage={changerPage}
+            comptes={comptes}
+            surAjoutCompte={ajouterCompte}
+            surSuppressionCompte={supprimerCompte}
+            surModificationCompte={modifierCompte}
+            utilisateurConnecte={utilisateurConnecte}
+          />
+        );
       default:
         return <Connexion comptes={comptes} surChangementPage={changerPage} />;
     }

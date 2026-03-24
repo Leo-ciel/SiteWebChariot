@@ -1,0 +1,206 @@
+/* ══════════════════════════════════════════
+   Systeme.css — Page Système
+   Charte graphique Pyrène Automation
+   ══════════════════════════════════════════ */
+
+/* ── Layout principal ── */
+.systeme {
+  display: flex;
+  min-height: calc(100vh - 60px);
+  font-family: "Nunito", sans-serif;
+}
+
+/* ════════════════════════════
+   Sidebar
+   ════════════════════════════ */
+.systeme__sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background-color: #6bbf4e;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 14px 16px;
+  gap: 8px;
+}
+
+.systeme__sidebar-titre {
+  font-size: 18px;
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.35);
+}
+
+.systeme__sidebar-liste {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.systeme__sidebar-bouton {
+  background-color: white;
+  color: #2d6a1f;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s;
+}
+
+.systeme__sidebar-bouton:hover {
+  background-color: #f0faea;
+  border-color: #6bbf4e;
+}
+
+.systeme__sidebar-bouton--actif {
+  background-color: #f0faea;
+  border-color: #2d6a1f;
+  color: #2d6a1f;
+  font-weight: 700;
+}
+
+/* ── Bas de sidebar ── */
+.systeme__sidebar-bas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.systeme__sidebar-deconnexion {
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.systeme__sidebar-deconnexion:hover {
+  background-color: #c62828;
+}
+
+.systeme__sidebar-retour {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.systeme__sidebar-retour:hover {
+  background-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ════════════════════════════
+   Contenu principal
+   ════════════════════════════ */
+.systeme__contenu {
+  flex: 1;
+  padding: 28px 32px;
+  background-color: #f7f9f5;
+  overflow-y: auto;
+}
+
+.systeme__section-titre {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a3a10;
+  margin: 0 0 22px;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #6bbf4e;
+}
+
+/* ════════════════════════════
+   Section "Changer de compte"
+   ════════════════════════════ */
+.systeme__changer-compte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding-top: 20px;
+}
+
+.systeme__changer-sous-titre {
+  font-size: 15px;
+  color: #555;
+  text-align: center;
+}
+
+.systeme__changer-cartes {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.systeme__changer-carte {
+  width: 180px;
+  height: 130px;
+  background-color: #2d2d2d;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  transition:
+    background-color 0.2s,
+    transform 0.15s;
+}
+.systeme__changer-carte:hover {
+  background-color: #444;
+  transform: translateY(-3px);
+}
+
+.systeme__changer-carte--admin {
+  background-color: #1a3a10;
+}
+.systeme__changer-carte--admin:hover {
+  background-color: #2d6a1f;
+}
+
+.systeme__changer-icone {
+  font-size: 36px;
+}
+.systeme__changer-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.systeme__changer-info {
+  font-size: 13px;
+  color: #777;
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .systeme__sidebar {
+    width: 160px;
+  }
+  .systeme__contenu {
+    padding: 16px;
+  }
+}
