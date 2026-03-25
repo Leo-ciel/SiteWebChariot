@@ -1,26 +1,24 @@
 // =============================================
 // COMPOSANT : Page de Connexion
+// Connecté à l'API PHP + MySQL via LAMP
 // =============================================
 
 import { useState } from "react";
 import "../styles/Connexion.css";
 
-// Compte administrateur par défaut (hardcodé)
-const COMPTE_ADMIN = {
-  email: "admin@pyrene.fr",
-  motDePasse: "Admin1234",
-  mode: "administrateur",
-};
+// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
+const API = "http://172.20.10.2/api";
 
-const Connexion = ({ comptes, surChangementPage }) => {
+const Connexion = ({ surChangementPage }) => {
   // ─── État local ──────────────────────────────
   const [mode, setMode] = useState("administrateur");
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
   const [erreur, setErreur] = useState("");
+  const [chargement, setChargement] = useState(false);
 
   // ─── Gestion de la soumission ────────────────
-  const gererSoumission = (e) => {
+  const gererSoumission = async (e) => {
     e.preventDefault();
     setErreur("");
 
@@ -29,38 +27,31 @@ const Connexion = ({ comptes, surChangementPage }) => {
       return;
     }
 
-    // Vérification selon le mode sélectionné
-    if (mode === "administrateur") {
-      // Authentification admin (compte unique hardcodé)
-      if (
-        email === COMPTE_ADMIN.email &&
-        motDePasse === COMPTE_ADMIN.motDePasse
-      ) {
-        surChangementPage("accueil", { mode: "administrateur", email });
-      } else {
-        setErreur(
-          "Identifiants administrateur incorrects. Vérifiez vos informations.",
-        );
-      }
-    } else {
-      // Authentification utilisateur (comptes créés via inscription)
-      const compteExistant = comptes.find(
-        (c) => c.email === email && c.motDePasse === motDePasse,
-      );
+    setChargement(true);
 
-      if (compteExistant) {
-        surChangementPage("accueil", { mode: "utilisateur", email });
+    try {
+      const reponse = await fetch(`${API}/connexion.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, motDePasse, mode }),
+      });
+
+      const donnees = await reponse.json();
+
+      if (donnees.succes) {
+        surChangementPage("accueil", {
+          mode: donnees.role,
+          email: donnees.email,
+        });
       } else {
-        // Vérifier si l'email existe mais mot de passe incorrect
-        const emailExistant = comptes.find((c) => c.email === email);
-        if (emailExistant) {
-          setErreur("Mot de passe incorrect. Veuillez réessayer.");
-        } else {
-          setErreur(
-            "Aucun compte trouvé avec cet email. Veuillez d'abord vous inscrire.",
-          );
-        }
+        setErreur(donnees.message);
       }
+    } catch {
+      setErreur(
+        "Impossible de contacter le serveur. Vérifiez votre connexion.",
+      );
+    } finally {
+      setChargement(false);
     }
   };
 
@@ -125,6 +116,7 @@ const Connexion = ({ comptes, surChangementPage }) => {
                 mode === "administrateur" ? "admin@pyrene.fr" : "votre@email.fr"
               }
               autoComplete="email"
+              disabled={chargement}
             />
           </div>
 
@@ -140,11 +132,16 @@ const Connexion = ({ comptes, surChangementPage }) => {
               onChange={(e) => setMotDePasse(e.target.value)}
               placeholder="••••••••"
               autoComplete="current-password"
+              disabled={chargement}
             />
           </div>
 
-          <button type="submit" className="connexion__bouton">
-            Se connecter
+          <button
+            type="submit"
+            className="connexion__bouton"
+            disabled={chargement}
+          >
+            {chargement ? "Connexion en cours…" : "Se connecter"}
           </button>
         </form>
 

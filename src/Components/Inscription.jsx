@@ -1,11 +1,15 @@
 // =============================================
 // COMPOSANT : Page d'Inscription
+// Connecté à l'API PHP + MySQL via LAMP
 // =============================================
 
 import { useState } from "react";
 import "../styles/Inscription.css";
 
-// ─── Utilitaire : calcul de la force du mot de passe ─
+// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
+const API = "http://172.20.10.2/api";
+
+// ─── Utilitaire : calcul de la force du mot de passe ─────
 const calculerForce = (mdp) => {
   if (!mdp) return 0;
   let score = 0;
@@ -49,24 +53,25 @@ const classeForce = (index, score) => {
   }
 };
 
-// ─── Composant principal ─────────────────────
-const Inscription = ({ comptes, surNouveauCompte, surChangementPage }) => {
+// ─── Composant principal ─────────────────────────────────
+const Inscription = ({ surChangementPage }) => {
   // État du formulaire
   const [email, setEmail] = useState("");
   const [motDePasse, setMotDePasse] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [erreur, setErreur] = useState("");
   const [succes, setSucces] = useState("");
+  const [chargement, setChargement] = useState(false);
 
   const forceScore = calculerForce(motDePasse);
 
-  // ─── Validation et soumission ───────────────
-  const gererSoumission = (e) => {
+  // ─── Validation et soumission ─────────────────────────
+  const gererSoumission = async (e) => {
     e.preventDefault();
     setErreur("");
     setSucces("");
 
-    // Vérifications
+    // Validations côté client
     if (!email || !motDePasse || !confirmation) {
       setErreur("Veuillez remplir tous les champs.");
       return;
@@ -87,24 +92,35 @@ const Inscription = ({ comptes, surNouveauCompte, surChangementPage }) => {
       return;
     }
 
-    // Vérifier si le compte existe déjà
-    const dejaExistant = comptes.find((c) => c.email === email);
-    if (dejaExistant) {
-      setErreur("Un compte avec cet email existe déjà.");
-      return;
+    setChargement(true);
+
+    try {
+      const reponse = await fetch(`${API}/inscription.php`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, motDePasse }),
+      });
+
+      const donnees = await reponse.json();
+
+      if (donnees.succes) {
+        setSucces("Compte créé avec succès ! Redirection vers la connexion…");
+        setTimeout(() => {
+          surChangementPage("connexion");
+        }, 1500);
+      } else {
+        setErreur(donnees.message);
+      }
+    } catch {
+      setErreur(
+        "Impossible de contacter le serveur. Vérifiez votre connexion.",
+      );
+    } finally {
+      setChargement(false);
     }
-
-    // Création du compte
-    surNouveauCompte({ email, motDePasse });
-    setSucces("Compte créé avec succès ! Redirection vers la connexion…");
-
-    // Redirection automatique après 1.5s
-    setTimeout(() => {
-      surChangementPage("connexion");
-    }, 1500);
   };
 
-  // ─── Rendu ───────────────────────────────────
+  // ─── Rendu ───────────────────────────────────────────
   return (
     <main className="inscription">
       <div className="inscription__carte">
@@ -145,6 +161,7 @@ const Inscription = ({ comptes, surNouveauCompte, surChangementPage }) => {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="votre@email.fr"
               autoComplete="email"
+              disabled={chargement}
             />
           </div>
 
@@ -161,6 +178,7 @@ const Inscription = ({ comptes, surNouveauCompte, surChangementPage }) => {
               onChange={(e) => setMotDePasse(e.target.value)}
               placeholder="••••••••"
               autoComplete="new-password"
+              disabled={chargement}
             />
             {/* Indicateur de force */}
             {motDePasse && (
@@ -197,11 +215,16 @@ const Inscription = ({ comptes, surNouveauCompte, surChangementPage }) => {
               onChange={(e) => setConfirmation(e.target.value)}
               placeholder="••••••••"
               autoComplete="new-password"
+              disabled={chargement}
             />
           </div>
 
-          <button type="submit" className="inscription__bouton">
-            Création du compte
+          <button
+            type="submit"
+            className="inscription__bouton"
+            disabled={chargement}
+          >
+            {chargement ? "Création en cours…" : "Création du compte"}
           </button>
         </form>
 
