@@ -6,10 +6,15 @@
 //   - Barre de progression avec chariot animé
 //   - Tableau historique des événements
 // =============================================
+// ✅ Connecté à l'API PHP + MySQL (données ESP32)
+// =============================================
 
 import { useEffect, useRef, useState } from "react";
 import "../styles/DebutFinDeCourse.css";
 import TableauHistorique from "./TableauHistorique";
+
+// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
+const API = "http://172.20.10.2/api";
 
 const heureActuelle = () => new Date().toLocaleTimeString("fr-FR");
 
@@ -49,30 +54,29 @@ const HISTORIQUE_INITIAL = [
 
 const DebutFinDeCourse = ({ onDonnees }) => {
   // ─── États ───────────────────────────────────
-  const [position, setPosition] = useState(34);
-  const [vitesse, setVitesse] = useState(1.8);
+  const [position, setPosition] = useState(0);
+  const [vitesse, setVitesse] = useState(0);
   const debut = "0 m";
   const fin = "100 m";
   const [historique, setHistorique] = useState(HISTORIQUE_INITIAL);
 
-  // ─── Simulation en temps réel toutes les 2s ──
+  // ─── Lecture capteurs en temps réel toutes les 2s ──
   useEffect(() => {
-    const intervalle = setInterval(() => {
-      setPosition((prev) => {
-        const nouvelle = prev + (Math.random() * 4 - 2);
-        return Math.min(100, Math.max(0, Math.round(nouvelle)));
-      });
-      setVitesse((prev) => {
-        const nouvelle = Math.min(
-          5,
-          Math.max(
-            0,
-            parseFloat((prev + (Math.random() * 0.4 - 0.2)).toFixed(1)),
-          ),
-        );
-        onDonnees?.({ position, vitesse: nouvelle });
-        return nouvelle;
-      });
+    const intervalle = setInterval(async () => {
+      try {
+        const reponse = await fetch(`${API}/capteurs_lire.php`);
+        const donnees = await reponse.json();
+        if (donnees.succes) {
+          setPosition(Math.round(donnees.position_chariot));
+          setVitesse(donnees.vitesse);
+          onDonnees?.({
+            position: donnees.position_chariot,
+            vitesse: donnees.vitesse,
+          });
+        }
+      } catch (erreur) {
+        console.error("Erreur lecture capteurs :", erreur);
+      }
     }, 2000);
 
     return () => clearInterval(intervalle);

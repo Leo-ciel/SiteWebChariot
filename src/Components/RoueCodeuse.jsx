@@ -9,10 +9,15 @@
 //   - Boutons changer le sens, remise à zéro
 //   - Tableau historique des événements
 // =============================================
+// ✅ Connecté à l'API PHP + MySQL (données ESP32)
+// =============================================
 
 import { useEffect, useRef, useState } from "react";
 import "../styles/RoueCodeuse.css";
 import TableauHistorique from "./TableauHistorique";
+
+// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
+const API = "http://172.20.10.2/api";
 
 const heureActuelle = () => new Date().toLocaleTimeString("fr-FR");
 
@@ -54,37 +59,33 @@ const RoueCodeuse = ({ onDonnees }) => {
   // ─── États ───────────────────────────────────
   const [angleDegres, setAngleDegres] = useState(0);
   const [angleAffiche, setAngleAffiche] = useState(0);
-  const [rpm, setRpm] = useState(45);
-  const [impulsions, setImpulsions] = useState(1024);
+  const [rpm, setRpm] = useState(0);
+  const [impulsions, setImpulsions] = useState(0);
   const [sens, setSens] = useState("horaire");
   const [rotationVisuelle, setRotationVisuelle] = useState(0);
   const [historique, setHistorique] = useState(HISTORIQUE_INITIAL);
 
-  // ─── Simulation en temps réel toutes les 300ms ─
+  // ─── Lecture capteurs en temps réel toutes les 300ms ──
   useEffect(() => {
-    const intervalle = setInterval(() => {
-      const delta = (rpm / 60) * (360 / 1000) * 300;
-      const increment = sens === "horaire" ? delta : -delta;
-
-      setRotationVisuelle((prev) => prev + increment);
-      setAngleDegres((prev) => parseFloat((prev + increment).toFixed(1)));
-      setAngleAffiche((prev) => {
-        const nouvelle = (((prev + increment) % 360) + 360) % 360;
-        return parseFloat(nouvelle.toFixed(1));
-      });
-      setImpulsions((prev) => prev + Math.floor(Math.random() * 3 + 1));
-      setRpm((prev) => {
-        const nouveau = Math.min(
-          300,
-          Math.max(10, parseFloat((prev + (Math.random() * 6 - 3)).toFixed(0))),
-        );
-        onDonnees?.({ rpm: nouveau });
-        return nouveau;
-      });
+    const intervalle = setInterval(async () => {
+      try {
+        const reponse = await fetch(`${API}/capteurs_lire.php`);
+        const donnees = await reponse.json();
+        if (donnees.succes) {
+          setRpm(donnees.rpm);
+          setAngleAffiche(donnees.angle_degres);
+          setAngleDegres(donnees.angle_degres);
+          setRotationVisuelle(donnees.angle_degres);
+          setImpulsions(donnees.impulsions);
+          onDonnees?.({ rpm: donnees.rpm });
+        }
+      } catch (erreur) {
+        console.error("Erreur lecture capteurs :", erreur);
+      }
     }, 300);
 
     return () => clearInterval(intervalle);
-  }, [rpm, sens]);
+  }, []);
 
   // ─── Alerte si RPM critique ───────────────────
   const dernierAlerteRpm = useRef(null);

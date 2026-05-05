@@ -9,10 +9,15 @@
 //   - Créer un nouveau cycle (vitesse, durée, nb passages)
 //   - Historique des événements
 // =============================================
+// ✅ Connecté à l'API PHP + MySQL (données ESP32)
+// =============================================
 
 import { useEffect, useState } from "react";
 import "../styles/CycleArrosage.css";
 import TableauHistorique from "./TableauHistorique";
+
+// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
+const API = "http://172.20.10.2/api";
 
 const heureActuelle = () => new Date().toLocaleTimeString("fr-FR");
 
@@ -208,8 +213,8 @@ const CycleArrosage = ({ onDonnees }) => {
   // ─── États ───────────────────────────────────
   const [modeAuto, setModeAuto] = useState(false);
   const [electrovanneOuverte, setElectrovanneOuverte] = useState(false);
-  const [position, setPosition] = useState(22);
-  const [vitesseMMin, setVitesseMMin] = useState(12.4);
+  const [position, setPosition] = useState(0);
+  const [vitesseMMin, setVitesseMMin] = useState(0);
   const debut = "0 %";
   const fin = "100 %";
   const [cycles, setCycles] = useState(CYCLES_INITIAUX);
@@ -221,21 +226,27 @@ const CycleArrosage = ({ onDonnees }) => {
   const [nvPassages, setNvPassages] = useState(1);
   const [nvDuree, setNvDuree] = useState(10);
 
-  // ─── Simulation position en temps réel ───────
+  // ─── Lecture capteurs en temps réel toutes les 1.5s ──
   useEffect(() => {
-    if (!cycleEnCours) return;
-    const intervalle = setInterval(() => {
-      setPosition((prev) => {
-        const nouvelle = prev + (Math.random() * 3 + 0.5);
-        return parseFloat(Math.min(nouvelle, 99.9).toFixed(1));
-      });
-      setVitesseMMin((prev) => {
-        const nouvelle = prev + (Math.random() * 2 - 1);
-        return Math.min(40, Math.max(5, parseFloat(nouvelle.toFixed(1))));
-      });
+    const intervalle = setInterval(async () => {
+      try {
+        const reponse = await fetch(`${API}/capteurs_lire.php`);
+        const donnees = await reponse.json();
+        if (donnees.succes) {
+          setPosition(parseFloat(donnees.position_chariot.toFixed(1)));
+          setElectrovanneOuverte(donnees.electrovanne === 1);
+          setVitesseMMin(donnees.vitesse);
+          onDonnees?.({
+            electrovanne: donnees.electrovanne === 1 ? "ouverte" : "fermee",
+          });
+        }
+      } catch (erreur) {
+        console.error("Erreur lecture capteurs :", erreur);
+      }
     }, 1500);
+
     return () => clearInterval(intervalle);
-  }, [cycleEnCours]);
+  }, []);
 
   // ─── Détection fin de course ─────────────────
   useEffect(() => {
