@@ -210,3 +210,24 @@
 .inscription__retour a:hover {
   color: #0d47a1;
 }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 480px) {
+  .inscription {
+    padding: 20px 12px;
+    align-items: flex-start;
+  }
+  .inscription__carte {
+    padding: 24px 18px 28px;
+    max-width: 100%;
+  }
+  .inscription__titre {
+    font-size: 1.35rem;
+  }
+  .inscription__champ {
+    font-size: 16px; /* évite le zoom auto sur iOS */
+  }
+  .inscription__bouton {
+    padding: 13px;
+  }
+}

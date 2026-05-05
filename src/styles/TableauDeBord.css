@@ -117,3 +117,21 @@
   color: #c62828;
   transform: translateY(-1px);
 }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 480px) {
+  .tableau {
+    padding: 24px 12px;
+    align-items: flex-start;
+  }
+  .tableau__carte {
+    padding: 28px 18px 32px;
+  }
+  .tableau__titre {
+    font-size: 1.4rem;
+  }
+  .tableau__infos {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

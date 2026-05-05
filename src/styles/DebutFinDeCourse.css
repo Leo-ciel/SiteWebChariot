@@ -73,3 +73,14 @@
   transition: left 0.5s ease;
   filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
 }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 480px) {
+  .dfc__barre-fond {
+    height: 22px;
+    border-radius: 11px;
+  }
+  .dfc__piste {
+    height: 42px;
+  }
+}

@@ -1,379 +1,137 @@
-/* ══════════════════════════════════════════
-   GestionProfils.css
-   Charte graphique Pyrène Automation
-   ══════════════════════════════════════════ */
+/* =============================================
+   TABLEAU DE BORD — Pyrène Automation
+   ============================================= */
 
-/* ── Cartes stats ── */
-.profils__stats {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 22px;
-}
-
-.profils__stat-carte {
+.tableau {
   flex: 1;
-  min-width: 120px;
-  background-color: white;
-  border-radius: 12px;
-  padding: 18px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  box-shadow: 0 2px 8px rgba(107, 191, 78, 0.12);
-  border-top: 4px solid #6bbf4e;
-}
-.profils__stat-carte--admin {
-  border-top-color: #1565c0;
-}
-.profils__stat-carte--user {
-  border-top-color: #43a047;
-}
-
-.profils__stat-valeur {
-  font-size: 32px;
-  font-weight: 800;
-  color: #1a3a10;
-}
-.profils__stat-carte--admin .profils__stat-valeur {
-  color: #1565c0;
-}
-
-.profils__stat-label {
-  font-size: 12px;
-  color: #777;
-  font-weight: 600;
-  text-align: center;
-}
-
-/* ── Grille 2 colonnes ── */
-.profils__grille {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 18px;
-  align-items: start;
-}
-
-/* ── Panneau générique ── */
-.profils__panneau {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07);
-  overflow: hidden;
-}
-.profils__panneau--large {
-  /* pas de contrainte de largeur */
-}
-
-.profils__panneau-titre {
-  background-color: #6bbf4e;
-  color: white;
-  font-size: 14px;
-  font-weight: 700;
-  padding: 12px 18px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  padding: 48px 16px;
 }
 
-.profils__badge {
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 12px;
-  padding: 1px 10px;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.profils__panneau-corps {
-  padding: 18px;
-}
-
-.profils__vide {
-  text-align: center;
-  color: #aaa;
-  padding: 32px 0;
-  font-size: 14px;
-}
-
-/* ── Tableau des comptes ── */
-.profils__tableau {
+.tableau__carte {
+  background-color: var(--vert-carte);
+  border-radius: var(--rayon);
+  padding: 40px 44px;
   width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
+  max-width: 400px;
+  box-shadow: var(--ombre);
+  text-align: center;
+  animation: apparition 0.4s ease;
 }
 
-.profils__tableau thead {
-  background-color: #f5faf2;
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.profils__tableau th {
-  padding: 10px 14px;
-  text-align: left;
-  color: #3a7a28;
+.tableau__icone {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.tableau__titre {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.7rem;
   font-weight: 700;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  border-bottom: 2px solid #e8f5e1;
+  color: var(--texte-sombre);
+  margin-bottom: 6px;
 }
 
-.profils__tableau td {
-  padding: 11px 14px;
-  border-bottom: 1px solid #f0f7ec;
-  vertical-align: middle;
+.tableau__sous-titre {
+  font-size: 1rem;
+  color: var(--texte-sombre);
+  margin-bottom: 4px;
 }
 
-.profils__tableau tbody tr:hover {
-  background-color: #fafffe;
-}
-.profils__tableau tbody tr:last-child td {
-  border-bottom: none;
-}
-
-.profils__tableau-email {
-  font-weight: 600;
-  color: #222;
-  font-size: 13px;
+.tableau__email {
+  font-size: 0.9rem;
+  color: rgba(0, 0, 0, 0.6);
+  margin-bottom: 24px;
+  font-style: italic;
 }
 
-/* ── Badges rôle ── */
-.profils__role-badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 700;
-}
-.profils__role-badge--admin {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-.profils__role-badge--user {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-/* ── Actions tableau ── */
-.profils__tableau-actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.profils__btn {
-  padding: 5px 12px;
-  border-radius: 6px;
-  border: none;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  transition:
-    background-color 0.2s,
-    transform 0.1s;
-  white-space: nowrap;
-}
-.profils__btn:hover {
-  transform: scale(1.03);
-}
-
-.profils__btn--modifier {
-  background-color: #e3f2fd;
-  color: #1565c0;
-}
-.profils__btn--modifier:hover {
-  background-color: #bbdefb;
-}
-
-.profils__btn--supprimer {
-  background-color: #ffebee;
-  color: #c62828;
-}
-.profils__btn--supprimer:hover {
-  background-color: #ffcdd2;
-}
-
-.profils__btn--confirmer {
-  background-color: #e53935;
-  color: white;
-}
-.profils__btn--confirmer:hover {
-  background-color: #b71c1c;
-}
-
-.profils__btn--sauvegarder {
-  background-color: #6bbf4e;
-  color: white;
-  padding: 7px 16px;
-}
-.profils__btn--sauvegarder:hover {
-  background-color: #5aad3f;
-}
-
-/* ── Ligne d'édition inline ── */
-.profils__ligne-edition td {
-  background-color: #f0faea;
-  padding: 14px 18px !important;
-  border-bottom: 2px solid #6bbf4e !important;
-}
-
-.profils__edition {
+.tableau__infos {
   display: flex;
   gap: 12px;
-  align-items: flex-end;
-  flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.profils__edition-groupe {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.tableau__info-item {
   flex: 1;
-  min-width: 160px;
-}
-
-.profils__edition-label {
-  font-size: 11px;
-  color: #555;
-  font-weight: 600;
-}
-
-.profils__edition-input,
-.profils__edition-select {
-  padding: 7px 10px;
-  border: 1px solid #b8dba8;
-  border-radius: 6px;
-  font-size: 13px;
-  background: white;
-  transition: border-color 0.2s;
-}
-.profils__edition-input:focus,
-.profils__edition-select:focus {
-  outline: none;
-  border-color: #6bbf4e;
-  box-shadow: 0 0 0 2px rgba(107, 191, 78, 0.2);
-}
-
-/* ════════════════════════════
-   Formulaire d'ajout
-   ════════════════════════════ */
-.profils__formulaire {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 10px;
+  padding: 12px 10px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 6px;
 }
 
-.profils__groupe {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.profils__label {
-  font-size: 12px;
+.tableau__info-label {
+  font-size: 0.75rem;
   font-weight: 700;
-  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(0, 0, 0, 0.55);
 }
 
-.profils__champ {
-  padding: 9px 12px;
-  border: 1.5px solid #d0d0d0;
-  border-radius: 7px;
-  font-size: 13px;
-  background: #fafafa;
-  transition:
-    border-color 0.2s,
-    box-shadow 0.2s;
-}
-.profils__champ:focus {
-  outline: none;
-  border-color: #6bbf4e;
-  box-shadow: 0 0 0 3px rgba(107, 191, 78, 0.15);
-  background: white;
-}
-.profils__champ--select {
-  cursor: pointer;
+.tableau__info-valeur {
+  font-size: 0.88rem;
+  font-weight: 700;
 }
 
-/* ── Indicateur de force ── */
-.profils__force-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 4px;
+.tableau__info-valeur--admin {
+  color: #7b1fa2;
 }
-.profils__force-barres {
-  display: flex;
-  gap: 4px;
-  flex: 1;
+.tableau__info-valeur--user {
+  color: #1565c0;
 }
-.profils__force-barre {
-  flex: 1;
-  height: 5px;
-  border-radius: 3px;
-  background: #e0e0e0;
-  transition: background-color 0.3s;
-}
-.profils__force-barre--faible {
-  background-color: #e53935;
-}
-.profils__force-barre--moyen {
-  background-color: #ff9800;
-}
-.profils__force-barre--fort {
-  background-color: #43a047;
-}
-.profils__force-barre--tres-fort {
-  background-color: #1b5e20;
+.tableau__info-valeur--actif {
+  color: #1b5e20;
 }
 
-.profils__force-texte {
-  font-size: 11px;
-  font-weight: 600;
-  color: #555;
-  white-space: nowrap;
-}
-
-/* ── Messages ── */
-.profils__message {
-  padding: 9px 14px;
-  border-radius: 7px;
-  font-size: 13px;
-  font-weight: 600;
-}
-.profils__message--erreur {
-  background-color: #ffebee;
-  color: #c62828;
-}
-.profils__message--succes {
-  background-color: #e8f5e9;
-  color: #2e7d32;
-}
-
-/* ── Bouton ajout ── */
-.profils__bouton-ajouter {
+.tableau__bouton-deconnexion {
   width: 100%;
   padding: 11px;
-  background-color: #6bbf4e;
-  color: white;
   border: none;
   border-radius: 8px;
-  font-size: 14px;
+  background-color: var(--blanc);
+  color: var(--texte-sombre);
+  font-size: 1rem;
   font-weight: 700;
+  font-family: "Nunito", sans-serif;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  margin-top: 4px;
-  transition:
-    background-color 0.2s,
-    transform 0.1s;
 }
-.profils__bouton-ajouter:hover {
-  background-color: #5aad3f;
+
+.tableau__bouton-deconnexion:hover {
+  background-color: #ffebee;
+  color: #c62828;
   transform: translateY(-1px);
 }
 
-/* ── Responsive ── */
-@media (max-width: 900px) {
-  .profils__grille {
-    grid-template-columns: 1fr;
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 480px) {
+  .tableau {
+    padding: 24px 12px;
+    align-items: flex-start;
+  }
+  .tableau__carte {
+    padding: 28px 18px 32px;
+  }
+  .tableau__titre {
+    font-size: 1.4rem;
+  }
+  .tableau__infos {
+    flex-direction: column;
+    gap: 8px;
   }
 }

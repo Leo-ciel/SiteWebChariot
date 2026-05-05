@@ -412,3 +412,21 @@
     opacity: 0;
   }
 }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 768px) {
+  .arrosage__grille {
+    grid-template-columns: 1fr;
+  }
+  .arrosage__actions {
+    gap: 10px;
+  }
+  .arrosage__btn-mode,
+  .arrosage__btn-electrovanne {
+    min-width: unset;
+    padding: 13px 16px;
+  }
+  .arrosage__cycles-liste {
+    max-height: 180px;
+  }
+}

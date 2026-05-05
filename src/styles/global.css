@@ -53,3 +53,15 @@ input {
 a {
   text-decoration: none;
 }
+
+/* ── RESPONSIVE MOBILE ── */
+body {
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  html,
+  body {
+    font-size: 15px;
+  }
+}

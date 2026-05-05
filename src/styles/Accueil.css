@@ -80,3 +80,22 @@
   transform: translateY(0);
   box-shadow: var(--ombre-legere);
 }
+
+/* ── RESPONSIVE MOBILE ── */
+@media (max-width: 480px) {
+  .accueil {
+    padding: 24px 14px;
+    align-items: flex-start;
+  }
+  .accueil__carte {
+    padding: 24px 20px 28px;
+    max-width: 100%;
+  }
+  .accueil__titre {
+    font-size: 1.15rem;
+  }
+  .accueil__bouton {
+    padding: 13px 16px;
+    font-size: 0.97rem;
+  }
+}

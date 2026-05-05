@@ -204,3 +204,96 @@
     padding: 16px;
   }
 }
+
+/* ── RESPONSIVE MOBILE ── */
+/* Sidebar verticale → barre onglets horizontale */
+@media (max-width: 768px) {
+  .systeme {
+    flex-direction: column;
+    min-height: unset;
+  }
+
+  .systeme__sidebar {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    padding: 8px 8px 0 8px;
+    gap: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    align-items: flex-end;
+  }
+  .systeme__sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .systeme__sidebar-titre {
+    display: none;
+  }
+
+  .systeme__sidebar-liste {
+    flex-direction: row;
+    gap: 6px;
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .systeme__sidebar-bouton {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 8px 8px 0 0;
+    border-bottom: none;
+  }
+  .systeme__sidebar-bouton--actif {
+    border-radius: 8px 8px 0 0;
+  }
+
+  .systeme__sidebar-bas {
+    flex-direction: row;
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    padding-left: 8px;
+    border-left: 1px solid rgba(255, 255, 255, 0.3);
+    gap: 6px;
+    flex-shrink: 0;
+    align-items: flex-end;
+    padding-bottom: 2px;
+  }
+
+  .systeme__sidebar-deconnexion,
+  .systeme__sidebar-retour {
+    font-size: 0.72rem;
+    padding: 7px 10px;
+    white-space: nowrap;
+    border-radius: 6px 6px 0 0;
+  }
+
+  .systeme__contenu {
+    padding: 16px 14px;
+    overflow-y: visible;
+  }
+
+  .systeme__section-titre {
+    font-size: 1.15rem;
+    margin-bottom: 16px;
+  }
+
+  .systeme__changer-cartes {
+    gap: 14px;
+  }
+
+  .systeme__changer-carte {
+    width: 140px;
+    height: 110px;
+    font-size: 13px;
+  }
+
+  .systeme__changer-icone {
+    font-size: 28px;
+  }
+}

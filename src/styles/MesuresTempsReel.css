@@ -266,3 +266,117 @@
   margin-right: 6px;
   animation: clignoter 1.2s infinite;
 }
+
+/* ── RESPONSIVE MOBILE ── */
+/* La sidebar verticale devient une barre de navigation horizontale */
+@media (max-width: 768px) {
+  .mesures {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  /* Sidebar → barre onglets en haut */
+  .mesures__sidebar {
+    width: 100%;
+    min-width: unset;
+    flex-direction: row;
+    align-items: center;
+    padding: 8px 8px 0 8px;
+    gap: 0;
+    overflow-x: auto;
+    /* Masque la scrollbar tout en gardant le scroll tactile */
+    scrollbar-width: none;
+  }
+  .mesures__sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mesures__sidebar-titre {
+    display: none; /* masqué sur mobile, la place est précieuse */
+  }
+
+  .mesures__sidebar-liste {
+    flex-direction: row;
+    padding: 0 4px 0 0;
+    gap: 6px;
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    align-items: flex-end;
+  }
+  .mesures__sidebar-liste::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mesures__sidebar-bouton {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    border-radius: 6px 6px 0 0;
+    box-shadow: none;
+  }
+  .mesures__sidebar-bouton:hover {
+    transform: none;
+  }
+  .mesures__sidebar-bouton--actif:hover {
+    transform: none;
+  }
+
+  .mesures__sidebar-retour {
+    margin: 0 0 2px 8px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    padding: 7px 12px;
+    font-size: 0.78rem;
+    border-radius: 6px 6px 0 0;
+  }
+
+  /* Zone contenu */
+  .mesures__contenu {
+    overflow: visible;
+  }
+
+  .mesures__section-titre {
+    font-size: 1.25rem;
+    padding: 16px 16px 12px;
+  }
+
+  .mesures__section-corps {
+    padding: 14px 14px;
+    gap: 14px;
+  }
+
+  /* Indicateurs */
+  .mesures__indicateurs {
+    gap: 8px;
+  }
+  .mesures__indicateur {
+    min-width: 70px;
+    padding: 10px 10px;
+    flex: 1;
+  }
+  .mesures__indicateur-label {
+    font-size: 0.7rem;
+  }
+  .mesures__indicateur-valeur {
+    font-size: 1.05rem;
+  }
+
+  /* Tableau historique */
+  .mesures__historique-tableau {
+    font-size: 0.78rem;
+  }
+  .mesures__historique-tableau th,
+  .mesures__historique-tableau td {
+    padding: 7px 8px;
+  }
+  /* Masquer la colonne "Heure" sur très petit écran si besoin */
+}
+
+@media (max-width: 480px) {
+  .mesures__panneau-corps {
+    padding: 14px 12px;
+  }
+}
