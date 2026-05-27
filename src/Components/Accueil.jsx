@@ -7,7 +7,7 @@ import "../styles/Accueil.css";
 // ─── Définition des boutons du menu ──────────
 const BOUTONS_MENU = [
   { id: "commande-chariot", label: "Commande Chariot" },
-  { id: "mesures-temps-reel", label: "Mesures en temps réel" },
+  { id: "mesures-temps-reel", label: "Tableau de bord" },
   { id: "systeme", label: "Système" },
 ];
 

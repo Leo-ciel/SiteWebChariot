@@ -1,27 +1,34 @@
 // =============================================
 // COMPOSANT : Cycle d'arrosage
 // =============================================
-// Fonctionnalités :
-//   - Basculer Mode Auto / Manuel
-//   - Ouvrir / Fermer l'électrovanne
-//   - Voir la position sur la course (%)
-//   - Voir les cycles d'arrosage en cours / passés
-//   - Créer un nouveau cycle (vitesse, durée, nb passages)
-//   - Historique des événements
-// =============================================
-// ✅ Connecté à l'API PHP + MySQL (données ESP32)
-// =============================================
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../styles/CycleArrosage.css";
 import TableauHistorique from "./TableauHistorique";
 
-// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
 const API = "http://172.20.10.2/api";
-
 const heureActuelle = () => new Date().toLocaleTimeString("fr-FR");
 
-// ─── Historique initial ───────────────────────
+async function envoyerCommande(action, vitesseNum = 0) {
+  try {
+    await fetch(`${API}/api_commande_chariot.php`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action,
+        vitesse: vitesseNum,
+        arrosage_actif: action === "trajet_lance",
+        deplacement_actif: action === "trajet_lance",
+        trajet_actif: action === "trajet_lance",
+        prog_actif: false,
+        message_statut: action,
+      }),
+    });
+  } catch (err) {
+    console.warn("[API] Erreur envoi commande :", err.message);
+  }
+}
+
 const HISTORIQUE_INITIAL = [
   {
     id: 1,
@@ -50,7 +57,6 @@ const HISTORIQUE_INITIAL = [
   },
 ];
 
-// ─── Cycles simulés initiaux ──────────────────
 const CYCLES_INITIAUX = [
   {
     id: 1,
@@ -70,7 +76,6 @@ const CYCLES_INITIAUX = [
   },
 ];
 
-// ─── Schéma SVG de l'électrovanne ────────────
 const SchemaElectrovanne = ({ ouverte }) => (
   <svg
     className="arrosage__schema-svg"
@@ -208,25 +213,23 @@ const SchemaElectrovanne = ({ ouverte }) => (
   </svg>
 );
 
-// ─── Composant principal ─────────────────────
 const CycleArrosage = ({ onDonnees }) => {
-  // ─── États ───────────────────────────────────
   const [modeAuto, setModeAuto] = useState(false);
   const [electrovanneOuverte, setElectrovanneOuverte] = useState(false);
   const [position, setPosition] = useState(0);
   const [vitesseMMin, setVitesseMMin] = useState(0);
-  const debut = "0 %";
-  const fin = "100 %";
   const [cycles, setCycles] = useState(CYCLES_INITIAUX);
   const [cycleEnCours, setCycleEnCours] = useState(null);
   const [historique, setHistorique] = useState(HISTORIQUE_INITIAL);
-
-  // ─── Formulaire Nouveau Cycle ─────────────────
   const [nvVitesse, setNvVitesse] = useState("V1");
   const [nvPassages, setNvPassages] = useState(1);
   const [nvDuree, setNvDuree] = useState(10);
 
-  // ─── Lecture capteurs en temps réel toutes les 1.5s ──
+  const timerCycleRef = useRef(null);
+  const debut = "0 %";
+  const fin = "100 %";
+
+  // ─── Lecture capteurs toutes les 1.5s ────────
   useEffect(() => {
     const intervalle = setInterval(async () => {
       try {
@@ -244,19 +247,10 @@ const CycleArrosage = ({ onDonnees }) => {
         console.error("Erreur lecture capteurs :", erreur);
       }
     }, 1500);
-
     return () => clearInterval(intervalle);
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ─── Détection fin de course ─────────────────
-  useEffect(() => {
-    if (cycleEnCours && position >= 99.9) {
-      terminerCycle();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [position]);
-
-  // ─── Ajouter un événement à l'historique ─────
+  // ─── Utilitaires ─────────────────────────────
   const ajouterEvenement = (evenement, statut = "ok") => {
     setHistorique((prev) => [
       { id: prev.length + 1, heure: heureActuelle(), evenement, statut },
@@ -264,14 +258,12 @@ const CycleArrosage = ({ onDonnees }) => {
     ]);
   };
 
-  // ─── Basculer Mode Auto / Manuel ─────────────
   const basculerMode = () => {
     const nouveau = !modeAuto;
     setModeAuto(nouveau);
     ajouterEvenement(`Mode basculé → ${nouveau ? "Automatique" : "Manuel"}`);
   };
 
-  // ─── Ouvrir / Fermer l'électrovanne ──────────
   const basculerElectrovanne = () => {
     const nouvelEtat = !electrovanneOuverte;
     setElectrovanneOuverte(nouvelEtat);
@@ -279,9 +271,29 @@ const CycleArrosage = ({ onDonnees }) => {
     ajouterEvenement(`Électrovanne ${nouvelEtat ? "ouverte" : "fermée"}`);
   };
 
-  // ─── Lancer un nouveau cycle ──────────────────
+  // ─── Logique commune de fin de cycle ─────────
+  // Utilise uniquement des setters stables (pas de closure sur des states)
+  const _finalisierCycle = (statut, evenement) => {
+    if (timerCycleRef.current) {
+      clearTimeout(timerCycleRef.current);
+      timerCycleRef.current = null;
+    }
+    setCycleEnCours(null);
+    setElectrovanneOuverte(false);
+    onDonnees?.({ electrovanne: "fermee" });
+    setCycles((prev) =>
+      prev.map((c) => (c.statut === "cours" ? { ...c, statut } : c)),
+    );
+    setHistorique((prev) => [
+      { id: prev.length + 1, heure: heureActuelle(), evenement, statut: "ok" },
+      ...prev.slice(0, 9),
+    ]);
+  };
+
+  // ─── Lancer un cycle ──────────────────────────
   const lancerCycle = () => {
     if (cycleEnCours) return;
+
     const nomVitesse = {
       V1: "V1 — Petite",
       V2: "V2 — Interméd.",
@@ -295,47 +307,67 @@ const CycleArrosage = ({ onDonnees }) => {
       duree: `${nvDuree} min`,
       statut: "cours",
     };
+
     setCycles((prev) => [nouveauCycle, ...prev]);
     setCycleEnCours(nouveauCycle.id);
     setElectrovanneOuverte(true);
     onDonnees?.({ electrovanne: "ouverte" });
-    setPosition(0);
+
+    // Timer de fin automatique
+    const dureeMs = nvDuree * 60 * 1000;
+    if (timerCycleRef.current) clearTimeout(timerCycleRef.current);
+    timerCycleRef.current = setTimeout(async () => {
+      timerCycleRef.current = null;
+      setCycleEnCours(null);
+      setElectrovanneOuverte(false);
+      setCycles((prev) =>
+        prev.map((c) => (c.statut === "cours" ? { ...c, statut: "ok" } : c)),
+      );
+      setHistorique((prev) => [
+        {
+          id: prev.length + 1,
+          heure: heureActuelle(),
+          evenement: "Cycle terminé automatiquement",
+          statut: "ok",
+        },
+        ...prev.slice(0, 9),
+      ]);
+      // Envoyer d'abord trajet_termine (stop moteur), puis arrosage_off
+      // (pour contrer handleBackgroundAutomation qui relit BULB_PIN toutes les 200ms)
+      await envoyerCommande("trajet_termine", 1);
+      setTimeout(() => envoyerCommande("arrosage_off", 1), 600);
+    }, dureeMs);
+
+    const vitesseNum = nvVitesse === "V1" ? 1 : nvVitesse === "V2" ? 2 : 3;
+    envoyerCommande("trajet_lance", vitesseNum);
     ajouterEvenement(
       `Nouveau cycle lancé — ${nomVitesse}, ${nvPassages} passage(s), ${nvDuree} min`,
     );
   };
 
-  // ─── Terminer le cycle en cours ───────────────
-  const terminerCycle = () => {
-    setCycleEnCours(null);
-    setElectrovanneOuverte(false);
-    onDonnees?.({ electrovanne: "fermee" });
-    setCycles((prev) =>
-      prev.map((c) => (c.statut === "cours" ? { ...c, statut: "ok" } : c)),
+  // ─── Terminer (automatique) ───────────────────
+  const terminerCycle = async () => {
+    _finalisierCycle(
+      "ok",
+      "Cycle terminé — Électrovanne fermée automatiquement",
     );
-    ajouterEvenement("Cycle terminé — Électrovanne fermée automatiquement");
+    await envoyerCommande("trajet_termine", 1);
+    setTimeout(() => envoyerCommande("arrosage_off", 1), 600);
   };
 
-  // ─── Arrêter le cycle manuellement ───────────
-  const arreterCycle = () => {
-    setCycleEnCours(null);
-    setElectrovanneOuverte(false);
-    onDonnees?.({ electrovanne: "fermee" });
-    setCycles((prev) =>
-      prev.map((c) => (c.statut === "cours" ? { ...c, statut: "arrete" } : c)),
-    );
-    ajouterEvenement("Cycle interrompu manuellement", "alerte");
+  // ─── Arrêter (manuel) ─────────────────────────
+  const arreterCycle = async () => {
+    _finalisierCycle("arrete", "Cycle interrompu manuellement");
+    await envoyerCommande("arret_total", 1);
+    setTimeout(() => envoyerCommande("arrosage_off", 1), 600);
   };
 
   // ─── Rendu ───────────────────────────────────
   return (
     <>
-      {/* ── Ligne 1 : Mode + Électrovanne ── */}
       <div className="arrosage__actions">
         <button
-          className={`arrosage__btn-mode ${
-            modeAuto ? "arrosage__btn-mode--auto" : "arrosage__btn-mode--manuel"
-          }`}
+          className={`arrosage__btn-mode ${modeAuto ? "arrosage__btn-mode--auto" : "arrosage__btn-mode--manuel"}`}
           onClick={basculerMode}
         >
           <span className="arrosage__btn-mode-label">Mode actuel</span>
@@ -348,11 +380,7 @@ const CycleArrosage = ({ onDonnees }) => {
         </button>
 
         <button
-          className={`arrosage__btn-electrovanne ${
-            electrovanneOuverte
-              ? "arrosage__btn-electrovanne--ouverte"
-              : "arrosage__btn-electrovanne--fermee"
-          }`}
+          className={`arrosage__btn-electrovanne ${electrovanneOuverte ? "arrosage__btn-electrovanne--ouverte" : "arrosage__btn-electrovanne--fermee"}`}
           onClick={basculerElectrovanne}
         >
           <span className="arrosage__btn-electrovanne-label">Électrovanne</span>
@@ -370,7 +398,6 @@ const CycleArrosage = ({ onDonnees }) => {
         </button>
       </div>
 
-      {/* ── Ligne 2 : 4 indicateurs ── */}
       <div className="mesures__indicateurs">
         <div className="mesures__indicateur">
           <span className="mesures__indicateur-label">Début</span>
@@ -396,7 +423,6 @@ const CycleArrosage = ({ onDonnees }) => {
         </div>
       </div>
 
-      {/* ── Ligne 3 : Position sur la course + Cycles ── */}
       <div className="arrosage__grille">
         <div className="mesures__panneau">
           <div className="mesures__panneau-titre">
@@ -407,11 +433,7 @@ const CycleArrosage = ({ onDonnees }) => {
             <div className="arrosage__schema-wrapper">
               <SchemaElectrovanne ouverte={electrovanneOuverte} />
               <span
-                className={`arrosage__schema-statut ${
-                  electrovanneOuverte
-                    ? "arrosage__schema-statut--ouvert"
-                    : "arrosage__schema-statut--ferme"
-                }`}
+                className={`arrosage__schema-statut ${electrovanneOuverte ? "arrosage__schema-statut--ouvert" : "arrosage__schema-statut--ferme"}`}
               >
                 {electrovanneOuverte
                   ? "✓ Électrovanne ouverte"
@@ -471,11 +493,7 @@ const CycleArrosage = ({ onDonnees }) => {
                 {cycles.map((cycle) => (
                   <div
                     key={cycle.id}
-                    className={`arrosage__cycle-item ${
-                      cycle.statut === "cours"
-                        ? "arrosage__cycle-item--en-cours"
-                        : ""
-                    }`}
+                    className={`arrosage__cycle-item ${cycle.statut === "cours" ? "arrosage__cycle-item--en-cours" : ""}`}
                   >
                     <span className="arrosage__cycle-numero">#{cycle.id}</span>
                     <div className="arrosage__cycle-infos">
@@ -504,7 +522,6 @@ const CycleArrosage = ({ onDonnees }) => {
         </div>
       </div>
 
-      {/* ── Ligne 4 : Nouveau Cycle + Historique ── */}
       <div className="arrosage__grille">
         <div className="mesures__panneau">
           <div className="mesures__panneau-titre">Nouveau Cycle</div>

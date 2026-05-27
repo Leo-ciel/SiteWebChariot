@@ -1,17 +1,15 @@
 // =============================================
-// COMPOSANT : Commande Chariot
+// COMPOSANT : Commande Chariot (avec API BDD)
 // =============================================
-// Comportement des boutons :
-//   ← / →     : Déplace la rampe dans les deux sens
-//   Rouge      : Stoppe l'arrosage ET le déplacement
-//   Bleu       : Ouvre les électrovannes (arrosage)
-//   Commutateur: Sélectionne la vitesse (1, 2 ou 3)
-//   Jaune      : Lance 1 trajet en arrosant à la vitesse sélectionnée
-//   Programmateur : Mode automatique (non modifiable sans technicien)
+// Toutes les modifications sont marquées [API]
+// Le reste du composant est identique à l'original
 // =============================================
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react"; // [API] useRef + useCallback ajoutés
 import "../styles/CommandeChariot.css";
+
+// ─── URL de l'API PHP (adapte l'IP à ton Raspberry Pi) ───
+const API = "http://172.20.10.2/api";
 
 // ─── Constantes de vitesse ───────────────────
 const VITESSES = {
@@ -22,21 +20,109 @@ const VITESSES = {
 
 // Angle de l'aiguille selon la position du commutateur
 const ANGLE_AIGUILLE = {
-  1: -45, // gauche
-  2: 0, // milieu (vertical)
-  3: 45, // droite
+  1: -45,
+  2: 0,
+  3: 45,
 };
 
+// [API] URL de l'API PHP — adapter selon ton hébergement
+const API_URL = `${API}/api_commande_chariot.php`;
+
+// [API] Fonction utilitaire : envoie un événement à la BDD
+async function envoyerEvenement(payload) {
+  try {
+    const reponse = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!reponse.ok) {
+      const erreur = await reponse.json().catch(() => ({}));
+      console.warn(
+        "[API] Erreur serveur :",
+        erreur.erreur ?? `HTTP ${reponse.status}`,
+      );
+    }
+  } catch (err) {
+    // Ne jamais bloquer l'interface si la BDD est indisponible
+    console.warn("[API] Impossible de joindre l'API :", err.message);
+  }
+}
+
+// Déclaration du composant fonctionnel "CommandeChariot"
 const CommandeChariot = ({ surChangementPage }) => {
   // ─── États du chariot ────────────────────────
   const [vitesse, setVitesse] = useState(2);
   const [arrosageActif, setArrosageActif] = useState(false);
   const [deplacementActif, setDeplacementActif] = useState(false);
-  const [direction, setDirection] = useState(null); // 'gauche' | 'droite'
+  const [direction, setDirection] = useState(null);
   const [trajetActif, setTrajetActif] = useState(false);
   const [progActif, setProgActif] = useState(false);
   const [messageStatut, setMessageStatut] = useState("Système prêt");
   const [classeStatut, setClasseStatut] = useState("");
+
+  // [API] Synchronisation de l'état arrosage avec la lampe réelle de l'ESP32
+  // La lampe physique = remplacement de l'électrovanne (pas d'eau disponible)
+  // Lampe allumée → arrosage actif ; éteinte → arrosage inactif
+  useEffect(() => {
+    const intervalle = setInterval(async () => {
+      try {
+        const reponse = await fetch(`${API}/capteurs_lire.php`);
+        const donnees = await reponse.json();
+        if (donnees.succes) {
+          setArrosageActif(donnees.electrovanne === 1);
+        }
+      } catch {
+        // Silencieux — ne pas bloquer l'UI si l'API est indisponible
+      }
+    }, 1500);
+    return () => clearInterval(intervalle);
+  }, []);
+
+  // [API] Ref pour le throttle des boutons maintenus (← / →)
+  const dernierEnvoiRef = useRef(0);
+
+  // [API] Fonction centrale : construit le payload et l'envoie
+  // overrides permet de passer les nouvelles valeurs AVANT que
+  // les setters React aient mis à jour les states (asynchrones)
+  const logAction = useCallback(
+    (action, overrides = {}) => {
+      const maintenant = Date.now();
+
+      // Throttle 400 ms pour éviter le flood sur maintien du bouton
+      const actionsThrottlees = ["deplacement_gauche", "deplacement_droite"];
+      if (
+        actionsThrottlees.includes(action) &&
+        maintenant - dernierEnvoiRef.current < 400
+      ) {
+        return;
+      }
+      dernierEnvoiRef.current = maintenant;
+
+      const payload = {
+        action,
+        vitesse: overrides.vitesse ?? vitesse,
+        direction: overrides.direction ?? direction,
+        arrosage_actif: overrides.arrosageActif ?? arrosageActif,
+        deplacement_actif: overrides.deplacementActif ?? deplacementActif,
+        trajet_actif: overrides.trajetActif ?? trajetActif,
+        prog_actif: overrides.progActif ?? progActif,
+        message_statut: overrides.messageStatut ?? messageStatut,
+      };
+
+      envoyerEvenement(payload);
+    },
+    [
+      vitesse,
+      direction,
+      arrosageActif,
+      deplacementActif,
+      trajetActif,
+      progActif,
+      messageStatut,
+    ],
+  );
 
   // ─── Utilitaire : mise à jour du statut ──────
   const majStatut = (message, classe = "") => {
@@ -47,128 +133,160 @@ const CommandeChariot = ({ surChangementPage }) => {
   // ─── BOUTON GAUCHE ← ─────────────────────────
   const gererGauche = () => {
     if (trajetActif) return;
+    const msg = "⬅  Déplacement vers la gauche en cours…";
     setDeplacementActif(true);
     setDirection("gauche");
-    majStatut(
-      "⬅  Déplacement vers la gauche en cours…",
-      "commande__statut--actif",
-    );
+    majStatut(msg, "commande__statut--actif");
+    logAction("deplacement_gauche", {
+      deplacementActif: true,
+      direction: "gauche",
+      messageStatut: msg,
+    }); // [API]
   };
 
   const stopperGauche = () => {
     if (trajetActif) return;
+    const msg = arrosageActif ? "💧 Arrosage en cours" : "Système prêt";
+    const cls = arrosageActif ? "commande__statut--arrosage" : "";
     setDeplacementActif(false);
     setDirection(null);
-    majStatut(
-      arrosageActif ? "💧 Arrosage en cours" : "Système prêt",
-      arrosageActif ? "commande__statut--arrosage" : "",
-    );
+    majStatut(msg, cls);
+    logAction("arret_deplacement", {
+      deplacementActif: false,
+      direction: null,
+      messageStatut: msg,
+    }); // [API]
   };
 
   // ─── BOUTON DROIT → ──────────────────────────
   const gererDroite = () => {
     if (trajetActif) return;
+    const msg = "➡  Déplacement vers la droite en cours…";
     setDeplacementActif(true);
     setDirection("droite");
-    majStatut(
-      "➡  Déplacement vers la droite en cours…",
-      "commande__statut--actif",
-    );
+    majStatut(msg, "commande__statut--actif");
+    logAction("deplacement_droite", {
+      deplacementActif: true,
+      direction: "droite",
+      messageStatut: msg,
+    }); // [API]
   };
 
   const stopperDroite = () => {
     if (trajetActif) return;
+    const msg = arrosageActif ? "💧 Arrosage en cours" : "Système prêt";
+    const cls = arrosageActif ? "commande__statut--arrosage" : "";
     setDeplacementActif(false);
     setDirection(null);
-    majStatut(
-      arrosageActif ? "💧 Arrosage en cours" : "Système prêt",
-      arrosageActif ? "commande__statut--arrosage" : "",
-    );
+    majStatut(msg, cls);
+    logAction("arret_deplacement", {
+      deplacementActif: false,
+      direction: null,
+      messageStatut: msg,
+    }); // [API]
   };
 
   // ─── BOUTON ROUGE : tout stopper ─────────────
   const gererRouge = () => {
+    const msg = "🔴 ARRÊT — Arrosage et déplacement stoppés";
     setArrosageActif(false);
     setDeplacementActif(false);
     setDirection(null);
     setTrajetActif(false);
     setProgActif(false);
-    majStatut(
-      "🔴 ARRÊT — Arrosage et déplacement stoppés",
-      "commande__statut--arret",
-    );
+    majStatut(msg, "commande__statut--arret");
+    logAction("arret_total", {
+      arrosageActif: false,
+      deplacementActif: false,
+      direction: null,
+      trajetActif: false,
+      progActif: false,
+      messageStatut: msg,
+    }); // [API]
   };
 
   // ─── BOUTON BLEU : ouvrir électrovannes ──────
   const gererBleu = () => {
     if (arrosageActif) {
-      // Bascule : fermer les électrovannes
+      const msg = deplacementActif
+        ? `${direction === "gauche" ? "⬅" : "➡"} Déplacement en cours (arrosage arrêté)`
+        : "Système prêt";
+      const cls = deplacementActif ? "commande__statut--actif" : "";
       setArrosageActif(false);
-      majStatut(
-        deplacementActif
-          ? `${direction === "gauche" ? "⬅" : "➡"} Déplacement en cours (arrosage arrêté)`
-          : "Système prêt",
-        deplacementActif ? "commande__statut--actif" : "",
-      );
+      majStatut(msg, cls);
+      logAction("arrosage_off", { arrosageActif: false, messageStatut: msg }); // [API]
     } else {
+      const msg = "💧 Électrovannes ouvertes — Arrosage en cours";
       setArrosageActif(true);
-      majStatut(
-        "💧 Électrovannes ouvertes — Arrosage en cours",
-        "commande__statut--arrosage",
-      );
+      majStatut(msg, "commande__statut--arrosage");
+      logAction("arrosage_on", { arrosageActif: true, messageStatut: msg }); // [API]
     }
   };
 
   // ─── COMMUTATEUR : changer la vitesse ────────
   const gererVitesse = (nouvelleVitesse) => {
+    const msg = `⚙️  Vitesse ${nouvelleVitesse} sélectionnée — ${VITESSES[nouvelleVitesse]}`;
     setVitesse(nouvelleVitesse);
-    majStatut(
-      `⚙️  Vitesse ${nouvelleVitesse} sélectionnée — ${VITESSES[nouvelleVitesse]}`,
-    );
+    majStatut(msg);
+    logAction("changement_vitesse", {
+      vitesse: nouvelleVitesse,
+      messageStatut: msg,
+    }); // [API]
   };
 
   // ─── BOUTON JAUNE : lancer 1 trajet arrosage ─
   const gererJaune = () => {
     if (trajetActif) return;
+    const msg = `🟡 Trajet en cours — ${VITESSES[vitesse]} avec arrosage`;
     setTrajetActif(true);
     setArrosageActif(true);
     setDeplacementActif(true);
-    majStatut(
-      `🟡 Trajet en cours — ${VITESSES[vitesse]} avec arrosage`,
-      "commande__statut--trajet",
-    );
-    // Simulation fin de trajet après 4 secondes
+    majStatut(msg, "commande__statut--trajet");
+    logAction("trajet_lance", {
+      trajetActif: true,
+      arrosageActif: true,
+      deplacementActif: true,
+      messageStatut: msg,
+    }); // [API]
+
     setTimeout(() => {
+      const msgFin = "✅ Trajet terminé — Système prêt";
       setTrajetActif(false);
       setArrosageActif(false);
       setDeplacementActif(false);
-      majStatut("✅ Trajet terminé — Système prêt", "");
+      majStatut(msgFin, "");
+      logAction("trajet_termine", {
+        trajetActif: false,
+        arrosageActif: false,
+        deplacementActif: false,
+        direction: null,
+        messageStatut: msgFin,
+      }); // [API]
     }, 10000);
   };
 
   // ─── PROGRAMMATEUR ───────────────────────────
   const gererProgrammateur = () => {
     if (progActif) {
+      const msg = "Programmateur désactivé — Mode manuel";
       setProgActif(false);
-      majStatut("Programmateur désactivé — Mode manuel", "");
+      majStatut(msg, "");
+      logAction("programmateur_off", { progActif: false, messageStatut: msg }); // [API]
     } else {
+      const msg =
+        "🕐 Programmateur actif — Intervention technicien requise pour modifier";
       setProgActif(true);
-      majStatut(
-        "🕐 Programmateur actif — Intervention technicien requise pour modifier",
-        "commande__statut--arrosage",
-      );
+      majStatut(msg, "commande__statut--arrosage");
+      logAction("programmateur_on", { progActif: true, messageStatut: msg }); // [API]
     }
   };
 
   // ─── Rendu ───────────────────────────────────
   return (
     <main className="commande">
-      {/* Bandeau de statut */}
       <div className={`commande__statut ${classeStatut}`}>{messageStatut}</div>
 
-      {/* Panneau des boutons */}
       <div className="commande__panneau">
-        {/* ── Ligne 0 : Programmateur ── */}
         <div className="commande__ligne-prog">
           <div className="commande__bouton-groupe">
             <button
@@ -181,9 +299,7 @@ const CommandeChariot = ({ surChangementPage }) => {
           </div>
         </div>
 
-        {/* ── Ligne 1 : Bleu · Commutateur · Jaune ── */}
         <div className="commande__ligne-haut">
-          {/* Bouton Bleu */}
           <div className="commande__bouton-groupe">
             <button
               className={`commande__bouton-rond commande__bouton-rond--bleu`}
@@ -200,7 +316,6 @@ const CommandeChariot = ({ surChangementPage }) => {
             </span>
           </div>
 
-          {/* Commutateur rotatif */}
           <div className="commande__commutateur-wrapper">
             <div className="commande__commutateur-positions">
               {[1, 2, 3].map((n) => (
@@ -229,7 +344,6 @@ const CommandeChariot = ({ surChangementPage }) => {
             </span>
           </div>
 
-          {/* Bouton Jaune */}
           <div className="commande__bouton-groupe">
             <button
               className="commande__bouton-rond commande__bouton-rond--jaune"
@@ -244,9 +358,7 @@ const CommandeChariot = ({ surChangementPage }) => {
           </div>
         </div>
 
-        {/* ── Ligne 2 : ← · Rouge · → ── */}
         <div className="commande__ligne-bas">
-          {/* Flèche Gauche */}
           <div className="commande__bouton-groupe">
             <button
               className="commande__bouton-rond commande__bouton-rond--noir"
@@ -264,7 +376,6 @@ const CommandeChariot = ({ surChangementPage }) => {
             <span className="commande__legende">Gauche</span>
           </div>
 
-          {/* Bouton Rouge STOP */}
           <div className="commande__bouton-groupe">
             <button
               className="commande__bouton-rond commande__bouton-rond--rouge"
@@ -274,7 +385,6 @@ const CommandeChariot = ({ surChangementPage }) => {
             <span className="commande__legende">STOP</span>
           </div>
 
-          {/* Flèche Droite */}
           <div className="commande__bouton-groupe">
             <button
               className="commande__bouton-rond commande__bouton-rond--noir"
@@ -294,7 +404,6 @@ const CommandeChariot = ({ surChangementPage }) => {
         </div>
       </div>
 
-      {/* Bouton retour */}
       <button
         className="commande__retour"
         onClick={() => surChangementPage("accueil")}
